@@ -8,9 +8,8 @@ import { Mascot, type MascotMood } from "./Mascot";
 import { StepsTimeline } from "./StepsTimeline";
 
 /**
- * Header for the car purchase pages: a regular bar with the back button, the mascot as a small
- * avatar right beside it, and "Get help" on the right. At the top of the page it is flat and
- * transparent; once the page scrolls it becomes a white bar with a soft shadow, as if floating.
+ * Header for the car purchase pages: a floating pill with the back button, the mascot as a small
+ * avatar right beside it, and "Get help" on the right.
  * After the booking, a miniature car card is pinned underneath with the car's name, its live
  * status and a control that opens the full next-steps list.
  */
@@ -50,17 +49,17 @@ export function ChatHeader({
 
   return (
     <>
-      <header
-        className={`sticky top-0 pt-[max(8px,env(safe-area-inset-top))] pb-8 transition-[box-shadow,background-color] duration-200 ${
-          scrolled ? "bg-surface-card-default/90 shadow-m backdrop-blur-md" : "bg-transparent"
-        }`}
-        style={{ zIndex: "var(--zSticky)" }}
-      >
+      <header className="sticky top-0 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8" style={{ zIndex: "var(--zSticky)" }}>
         <Typography textStyle="helper-sm-regular" className="sr-only">
           {CONCIERGE_NAME}
         </Typography>
 
-        <div className="flex items-center gap-4 px-8 [&_button]:text-text-primary!">
+        {/* Floating pill: always rounded, bordered and softly shadowed */}
+        <div
+          className={`flex items-center gap-4 rounded-full border border-border-default-soft bg-surface-card-default/90 p-4 backdrop-blur-md transition-shadow duration-200 [&_button]:text-text-primary! ${
+            scrolled ? "shadow-l" : "shadow-m"
+          }`}
+        >
           <Button variant="ghost" size="sm" iconOnly iconLeft={<ArrowLeft aria-hidden="true" />} aria-label="Back" onClick={onBack}>
             Back
           </Button>
@@ -80,7 +79,7 @@ export function ChatHeader({
         {car && (
           <>
             {stepsOpen && <div className="fixed inset-0 bg-text-primary/10" onClick={() => setStepsOpen(false)} aria-hidden="true" />}
-            <div className="reveal-up relative mt-8 px-16">
+            <div className="reveal-up relative mt-8">
               <div
                 className={`flex flex-col gap-8 rounded-3xl border border-border-default-soft bg-surface-card-default p-8 transition-shadow duration-200 ${
                   scrolled ? "shadow-none" : "shadow-m"
@@ -130,7 +129,7 @@ export function ChatHeader({
               {stepsOpen && (
                 <div
                   id="booking-steps"
-                  className="reveal-up absolute inset-x-16 top-full mt-8 max-h-[60svh] overflow-auto rounded-3xl border border-border-default-soft bg-surface-card-default p-16 shadow-l"
+                  className="reveal-up absolute inset-x-0 top-full mt-8 max-h-[60svh] overflow-auto rounded-3xl border border-border-default-soft bg-surface-card-default p-16 shadow-l"
                 >
                   <div className="mb-16 flex flex-col gap-4">
                     <Typography textStyle="label-md-semibold" color="brand">
