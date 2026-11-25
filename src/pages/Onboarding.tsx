@@ -18,7 +18,9 @@ const EASE = "cubic-bezier(.22,.8,.2,1)";
 /** How long the finished screen is held before the cards slide up. */
 const HOLD_MS = 4200;
 /** How long the welcome items take to lift away. */
-const FADE_MS = 500;
+const FADE_MS = 450;
+/** How long the concierge takes to contract away before the cards fade in. */
+const CONTRACT_MS = 750;
 /** Big, tight, centred. Inline because component CSS beats utilities. */
 const TITLE = { fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em", textAlign: "center" } as const;
 
@@ -54,14 +56,16 @@ export default function Onboarding() {
     return () => window.clearTimeout(t);
   }, [reduce, gathered]);
 
-  // When the welcome items have faded out, bring the story screen in and update the address (no reload).
-  const [entered, setEntered] = useState(false);
+  // The concierge contracts away, then the story screen fades in slowly in its place.
+  const [reveal, setReveal] = useState(false);
   useEffect(() => {
     if (!leaving) return;
-    const t = window.setTimeout(() => {
-      setEntered(true);
-      window.history.replaceState(null, "", withBase("/story"));
-    }, reduce ? 0 : FADE_MS + 100);
+    window.history.replaceState(null, "", withBase("/story"));
+    if (reduce) {
+      setReveal(true);
+      return;
+    }
+    const t = window.setTimeout(() => setReveal(true), CONTRACT_MS);
     return () => window.clearTimeout(t);
   }, [leaving, reduce]);
 
@@ -70,11 +74,7 @@ export default function Onboarding() {
       <main
         className="mx-auto flex h-svh w-full max-w-480 flex-col overflow-hidden bg-surface-page-primary px-16 pt-[max(16px,env(safe-area-inset-top))] pb-[max(32px,env(safe-area-inset-bottom))]"
       >
-        {/* Everything on the welcome screen lifts away together before the cards arrive. */}
-        <div
-          className="flex min-h-0 flex-1 flex-col"
-          style={{ opacity: leaving ? 0 : 1, transform: leaving ? "translateY(-16px) scale(0.98)" : "none", transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ${EASE}` }}
-        >
+        <div className="flex min-h-0 flex-1 flex-col">
         {/* Field: pills float here, then gather into the concierge at the centre */}
         <div className="relative mb-16 min-h-0 flex-1" aria-label={gathered ? "Everything gathered into one place" : "Scattered tasks of owning a car"}>
           {PILLS.map((p, i) => {
@@ -112,10 +112,14 @@ export default function Onboarding() {
           <div className="absolute top-1/2 left-1/2" style={{ transform: "translate(-50%,-50%)" }}>
             <div
               className="relative grid size-[min(260px,66vw)] place-items-center"
-              style={{ opacity: gathered ? 1 : 0, transform: `scale(${gathered ? 1 : 0.3})`, transition: `opacity 1.2s ease 1s, transform 1.6s ${EASE} 1s` }}
+              style={
+                leaving
+                  ? { opacity: 0, transform: "scale(0)", transition: `opacity ${CONTRACT_MS}ms ease-in, transform ${CONTRACT_MS}ms cubic-bezier(.5, 0, .75, 0)` }
+                  : { opacity: gathered ? 1 : 0, transform: `scale(${gathered ? 1 : 0.3})`, transition: `opacity 1.2s ease 1s, transform 1.6s ${EASE} 1s` }
+              }
             >
-              <i className="onb-ring absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(107,154,133,.12), rgba(107,154,133,.04) 70%)" }} />
-              <i className="onb-ring absolute inset-[17%] rounded-full bg-brand-surface-subtle" style={{ animationDelay: ".8s" }} />
+              <i className="onb-ring absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(107,154,133,.12), rgba(107,154,133,.04) 70%)", opacity: leaving ? 0 : 1, transition: `opacity ${FADE_MS}ms ease` }} />
+              <i className="onb-ring absolute inset-[17%] rounded-full bg-brand-surface-subtle" style={{ animationDelay: ".8s", opacity: leaving ? 0 : 1, transition: `opacity ${FADE_MS}ms ease` }} />
               <span className="relative grid size-[46%] place-items-center rounded-full border border-border-default-soft bg-surface-card-default shadow-m">
                 <Mascot mood="happy" size={92} className="mt-4" />
               </span>
@@ -124,8 +128,8 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {/* Bottom: the title swaps in place, centred and large, then the subline and the button */}
-        <div className="flex flex-col">
+        {/* Bottom: the title swaps in place, centred and large, then the subline. It lifts away when the circle opens. */}
+        <div className="flex flex-col" style={{ opacity: leaving ? 0 : 1, transform: leaving ? "translateY(-10px)" : "none", transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ${EASE}` }}>
           <div className="grid">
             <Typography
               textStyle="heading-xl"
@@ -169,10 +173,10 @@ export default function Onboarding() {
         </div>
       </main>
 
-      {/* Once the welcome items are gone, the story screen builds itself in on the same background. */}
-      {entered && (
-        <div className="fixed inset-0 overflow-hidden" style={{ zIndex: "var(--zModal, 50)" }}>
-          <Story entering />
+      {/* Once the concierge has contracted away, the story screen mounts and its cards fade in slowly. */}
+      {reveal && (
+        <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 50 }}>
+          <Story morph />
         </div>
       )}
     </div>

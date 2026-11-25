@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { Button } from "@acko/button";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
@@ -11,14 +11,14 @@ import { navigate } from "../router";
  */
 
 const TOTAL = USE_CASES.length;
-const FADE = "linear-gradient(to bottom, #000 82%, transparent 100%)";
-const TITLE: CSSProperties = { fontSize: 38, lineHeight: 1.08, letterSpacing: "-0.02em" };
+const FADE = "linear-gradient(to bottom, #000 86%, transparent 100%)";
+const TITLE: CSSProperties = { fontSize: 36, lineHeight: 1.08, letterSpacing: "-0.02em" };
 const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 function StoryCard({ useCase }: { useCase: UseCase }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-5xl border border-border-default-soft bg-surface-card-default shadow-m">
-      <div className="relative h-[44%] shrink-0 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <img
           src={asset(useCase.image)}
           alt={useCase.imageAlt}
@@ -30,7 +30,7 @@ function StoryCard({ useCase }: { useCase: UseCase }) {
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-16 px-24 pt-8 pb-24">
+      <div data-story-content className="flex shrink-0 flex-col gap-16 px-24 pt-4 pb-20">
         <div className="story-in flex flex-col gap-8" style={delay(0)}>
           <Typography textStyle="label-md-semibold" color="secondary">
             {useCase.topic}
@@ -40,7 +40,7 @@ function StoryCard({ useCase }: { useCase: UseCase }) {
           </Typography>
         </div>
 
-        <div className="mt-auto flex flex-col gap-8">
+        <div className="flex flex-col gap-8">
           <div className="story-in max-w-[90%] self-end rounded-3xl rounded-br-md bg-surface-page-secondary px-16 py-12" style={delay(250)}>
             <Typography textStyle="body-lg-regular" color="secondary">
               {useCase.user}
@@ -55,10 +55,24 @@ function StoryCard({ useCase }: { useCase: UseCase }) {
   );
 }
 
-export default function Story({ entering = false }: { entering?: boolean }) {
+export default function Story({ morph = false }: { morph?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
+
+  // Every card's text block takes the height of the tallest one, so the pictures are the same size on all cards.
+  useLayoutEffect(() => {
+    const fit = () => {
+      const blocks = Array.from(trackRef.current?.querySelectorAll<HTMLElement>("[data-story-content]") ?? []);
+      blocks.forEach((b) => (b.style.minHeight = ""));
+      const tallest = Math.max(0, ...blocks.map((b) => b.offsetHeight));
+      blocks.forEach((b) => (b.style.minHeight = `${tallest}px`));
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    document.fonts?.ready.then(fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
 
   const goTo = useCallback((i: number) => {
     const track = trackRef.current;
@@ -81,7 +95,7 @@ export default function Story({ entering = false }: { entering?: boolean }) {
   }, []);
 
   return (
-    <div className={`min-h-svh bg-surface-page-secondary ${entering ? "story-entering" : ""}`}>
+    <div className={`min-h-svh bg-surface-page-secondary ${morph ? "story-morph" : ""}`}>
       <main className="mx-auto flex h-svh w-full max-w-480 flex-col bg-surface-page-primary pt-[max(12px,env(safe-area-inset-top))] pb-[max(16px,env(safe-area-inset-bottom))]">
         <section className="se-card min-h-0 flex-1" aria-roledescription="carousel" aria-label="What your concierge does">
           <div
