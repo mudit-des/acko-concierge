@@ -136,6 +136,13 @@ body {
 .story-morph [data-active="true"] .story-in { animation-delay: calc(var(--d, 0ms) + 900ms); }
 @media (prefers-reduced-motion: reduce) { .story-morph .se-card, .story-morph .se-foot { animation: none !important; } }
 
+/* Chat sheet: slides up from the bottom over a fading backdrop */
+@keyframes chat-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes chat-in { from { opacity: 0; } to { opacity: 1; } }
+.chat-sheet { animation: chat-up 380ms cubic-bezier(.22, .8, .2, 1) both; }
+.chat-backdrop { animation: chat-in 300ms ease both; }
+@media (prefers-reduced-motion: reduce) { .chat-sheet, .chat-backdrop { animation: none !important; } }
+
 /* App-opening screen: pills bob gently, the concierge rings breathe */
 @keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }

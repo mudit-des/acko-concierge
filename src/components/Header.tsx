@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Button } from "@acko/button";
 import { Messages } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
+import { ConciergeChat } from "./ConciergeChat";
 import { Link } from "./Link";
 
 /**
@@ -9,7 +11,9 @@ import { Link } from "./Link";
  * "Concierge" in lighter grey, and a quiet icon to talk to the concierge.
  */
 export function Header() {
+  const [chatOpen, setChatOpen] = useState(false);
   return (
+    <>
     <header className="sticky top-0 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8" style={{ zIndex: "var(--zSticky)" }}>
       <div className="flex h-56 items-center gap-8 rounded-full border border-border-default-soft bg-surface-card-default/90 py-4 pr-4 pl-20 shadow-m backdrop-blur-md">
         <Link to="/home" className="flex min-h-44 min-w-0 items-center gap-6" aria-label="ACKO Drive concierge home">
@@ -19,11 +23,13 @@ export function Header() {
           </Typography>
         </Link>
         <span className="ml-auto [&_button]:text-text-primary!">
-          <Button variant="ghost" size="md" iconOnly iconLeft={<Messages aria-hidden="true" />} aria-label="Talk to your concierge">
+          <Button variant="ghost" size="md" iconOnly iconLeft={<Messages aria-hidden="true" />} aria-label="Talk to your concierge" onClick={() => setChatOpen(true)}>
             Talk to your concierge
           </Button>
         </span>
       </div>
     </header>
+    <ConciergeChat open={chatOpen} onClose={() => setChatOpen(false)} />
+    </>
   );
 }
