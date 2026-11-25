@@ -1,4 +1,3 @@
-import { Typography } from "@acko/typography";
 import { CtaBar } from "../components/CtaBar";
 import { Header } from "../components/Header";
 import { Services } from "../components/Services";
@@ -11,11 +10,6 @@ export default function Home() {
         <Header />
         <StoryCarousel />
         <Services />
-        <footer className="px-16 pt-40 text-center">
-          <Typography textStyle="helper-sm-regular" color="secondary">
-            ACKO Drive concierge · Draft concept
-          </Typography>
-        </footer>
       </main>
       <CtaBar />
     </div>

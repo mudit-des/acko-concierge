@@ -5,40 +5,26 @@ import { asset } from "../asset";
 import { Link } from "./Link";
 
 /**
- * Brand header for the home page: ACKO Drive logo, a divider and "Concierge" set at the
- * wordmark's scale, all in one design-system grey. The booking pages use ChatHeader instead.
+ * Header for the home page: the same floating pill as the buy pages. The ACKO Drive wordmark in
+ * solid black, then "Concierge" in a lighter grey on the same line with no divider, and help on
+ * the right. It stays pinned while the page scrolls.
  */
 export function Header() {
   return (
-    <header className="flex items-center justify-between gap-8 px-16 pt-[max(12px,env(safe-area-inset-top))]">
-      <Link to="/home" className="flex min-h-44 items-center gap-8" aria-label="ACKO Drive concierge home">
-        {/* The logo is a mask so it can take the header's grey; the file itself is the black wordmark. */}
-        <span
-          role="img"
-          aria-label="ACKO Drive"
-          className="block h-28 w-168 shrink-0"
-          style={{
-            backgroundColor: "var(--textSecondary)",
-            WebkitMaskImage: `url(${asset("/brand/acko-drive-wide-black.svg")})`,
-            maskImage: `url(${asset("/brand/acko-drive-wide-black.svg")})`,
-            WebkitMaskRepeat: "no-repeat",
-            maskRepeat: "no-repeat",
-            WebkitMaskSize: "contain",
-            maskSize: "contain",
-            WebkitMaskPosition: "left center",
-            maskPosition: "left center",
-          }}
-        />
-        <span className="h-24 w-1 shrink-0 bg-text-secondary" aria-hidden="true" />
-        <Typography textStyle="label-2xl-medium" color="secondary">
-          Concierge
-        </Typography>
-      </Link>
-      <span className="[&_button]:text-text-secondary!">
-        <Button variant="ghost" iconOnly iconLeft={<CustomerService aria-hidden="true" />} aria-label="Help">
-          Help
-        </Button>
-      </span>
+    <header className="sticky top-0 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8" style={{ zIndex: "var(--zSticky)" }}>
+      <div className="flex items-center gap-8 rounded-full border border-border-default-soft bg-surface-card-default/90 py-4 pr-4 pl-20 shadow-m backdrop-blur-md [&_button]:text-text-primary!">
+        <Link to="/home" className="flex min-h-44 min-w-0 items-center gap-6" aria-label="ACKO Drive concierge home">
+          <img src={asset("/brand/acko-drive-wide-black.svg")} alt="ACKO Drive" height={24} className="h-24 w-auto shrink-0" />
+          <Typography textStyle="label-xl-medium" color="secondary" truncate>
+            Concierge
+          </Typography>
+        </Link>
+        <span className="ml-auto">
+          <Button variant="ghost" size="sm" iconOnly iconLeft={<CustomerService aria-hidden="true" />} aria-label="Get help">
+            Get help
+          </Button>
+        </span>
+      </div>
     </header>
   );
 }

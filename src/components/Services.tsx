@@ -8,7 +8,7 @@ import { Icon, type IconType } from "./Icon";
 
 /*
  * Services, in three tiers by how much they matter:
- *  1. Your car: Buy is the hero, Sell and Exchange sit beside each other under it.
+ *  1. Buy is the large tile, with Sell and Exchange stacked beside it.
  *  2. Insurance: its own full-width card. It will get a home of its own for the buy, renew and claim flows.
  *  3. Quick checks: challans, FASTag and PUC as quiet utility tiles.
  * Only Buy leads anywhere today; the rest are placeholders until their flows exist.
@@ -23,31 +23,40 @@ const CARD_STYLE: CSSProperties = {
   padding: 0,
 };
 
-function Group({ label, children, index, revealed }: { label: string; children: ReactNode; index: number; revealed: boolean }) {
+function Group({ label, children, index, revealed }: { label?: string; children: ReactNode; index: number; revealed: boolean }) {
   return (
     <div className={`tile-reveal ${revealed ? "is-in" : ""} flex flex-col gap-8`} style={{ animationDelay: `${index * 80}ms` }}>
-      <Typography textStyle="label-md-semibold" color="secondary" as="h3">
-        {label}
-      </Typography>
+      {label && (
+        <Typography textStyle="heading-md" as="h3">
+          {label}
+        </Typography>
+      )}
       {children}
     </div>
   );
 }
 
 /** A car service: picture on top (or an icon where the illustration isn't ready), then the title. */
-function CarCard({ title, body, image, icon, to, tall = false }: { title: string; body?: string; image?: string; icon?: IconType; to?: string; tall?: boolean }) {
+function CarCard({ title, body, image, icon, to, tall = false, fill = false, zoom, position, className = "" }: { title: string; body?: string; image?: string; icon?: IconType; to?: string; tall?: boolean; fill?: boolean; zoom?: { scale: number; origin: string; position: string }; /** CSS object-position for the picture, to keep the subject inside the crop */ position?: string; className?: string }) {
   return (
     <Card
       variant="primary"
       onTap={() => to && navigate(to)}
       semanticLabel={title}
       style={CARD_STYLE}
-      className="h-full text-left transition-transform duration-200 active:scale-[0.98]"
+      className={`h-full text-left transition-transform duration-200 active:scale-[0.98] ${className}`}
     >
       <div className="flex h-full flex-col gap-12 p-8">
-        <div className={`relative grid place-items-center overflow-hidden rounded-2xl bg-surface-page-secondary ${tall ? "h-120" : "h-88"}`}>
+        <div className={`relative grid place-items-center overflow-hidden rounded-2xl bg-surface-page-secondary ${fill ? "min-h-0 flex-1" : tall ? "aspect-[5/2]" : "h-80"}`}>
           {image ? (
-            <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+            <img
+              src={image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 size-full object-cover"
+              style={zoom ? { transform: `scale(${zoom.scale})`, transformOrigin: zoom.origin, objectPosition: zoom.position } : { objectPosition: position }}
+            />
           ) : (
             icon && (
               <span className="text-text-muted">
@@ -104,15 +113,21 @@ export function Services() {
       </Typography>
 
       <div className="mt-24 flex flex-col gap-24">
-        <Group label="Your car" index={0} revealed={revealed}>
-          <CarCard title="Buy a car" body="Advice, a fair price, and we chase the rest." image={asset("/illustrations/tile-buy.webp")} to="/buy-car/received" tall />
+        {/* One bento: Buy large on the left, Sell and Exchange stacked beside it, Insurance full width below, same 8px gap throughout */}
+        <Group index={0} revealed={revealed}>
           <div className="grid grid-cols-2 gap-8">
-            <CarCard title="Sell" image={asset("/illustrations/tile-sell.webp")} />
-            <CarCard title="Exchange" image={asset("/illustrations/tile-exchange.webp")} />
+            <CarCard
+              title="Buy a car"
+              body="Advice, a fair price, and we chase the rest."
+              image={asset("/illustrations/tile-buy.webp")}
+              to="/buy-car/received"
+              fill
+              zoom={{ scale: 1, origin: "50% 50%", position: "36% 50%" }}
+              className="row-span-2"
+            />
+            <CarCard title="Sell" body="A fair price and a verified buyer." image={asset("/illustrations/tile-sell.webp")} position="50% 40%" />
+            <CarCard title="Exchange" body="Trade in your old car for a new one." image={asset("/illustrations/tile-exchange.webp")} position="50% 40%" />
           </div>
-        </Group>
-
-        <Group label="Insurance" index={1} revealed={revealed}>
           <CarCard title="Car insurance" body="Buy, renew or claim in one place." image={asset("/illustrations/tile-insure.webp")} tall />
         </Group>
 
@@ -121,10 +136,10 @@ export function Services() {
             {QUICK.map((q) => (
               <Card
                 key={q.title}
-                variant="secondary"
+                variant="primary"
                 onTap={() => undefined}
                 semanticLabel={q.title}
-                style={{ overflow: "hidden", backgroundColor: "var(--surfacePageSecondary)", border: "none", padding: 0 }}
+                style={{ overflow: "hidden", backgroundColor: "var(--surfaceCardDefault)", border: "1px solid var(--borderDefaultSoft)", padding: 0 }}
                 className="text-left transition-transform duration-200 active:scale-[0.98]"
               >
                 <div className="flex min-h-96 flex-col justify-between gap-16 p-12">

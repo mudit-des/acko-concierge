@@ -63,42 +63,11 @@ export function StoryCarousel() {
   const slides: ReactNode[] = USE_CASES.map((u) => <UseCaseSlide key={u.id} useCase={u} />);
 
   return (
-    <section ref={rootRef} className="pt-8" aria-roledescription="carousel" aria-label="Why a concierge">
-      {/* Segmented progress: neutral track, black fill */}
-      <div className="flex gap-6 px-16">
-        {Array.from({ length: TOTAL }, (_, i) => {
-          const done = i < active;
-          const current = i === active;
-          return (
-            <button
-              key={i}
-              type="button"
-              className="flex h-44 flex-1 items-center"
-              aria-label={`Go to slide ${i + 1}`}
-              aria-current={current ? "true" : undefined}
-              onClick={() => {
-                stopAuto();
-                goTo(i);
-              }}
-            >
-              <span className="relative block h-3 w-full overflow-hidden rounded-full bg-border-default-soft">
-                <span
-                  className={`absolute inset-y-0 left-0 rounded-full bg-text-primary ${current && auto ? "story-fill" : done || current ? "w-full" : "w-0"}`}
-                  style={current && auto ? { animationPlayState: running ? "running" : "paused" } : undefined}
-                  onAnimationEnd={() => {
-                    if (current && auto) goTo((i + 1) % TOTAL);
-                  }}
-                />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
+    <section ref={rootRef} className="pt-16" aria-roledescription="carousel" aria-label="Why a concierge">
       {/* Slides */}
       <div
         ref={trackRef}
-        className="no-scrollbar flex snap-x snap-mandatory scroll-pl-16 gap-12 overflow-x-auto overscroll-x-contain px-16 pt-4 pb-20"
+        className="no-scrollbar flex snap-x snap-mandatory scroll-pl-16 gap-12 overflow-x-auto overscroll-x-contain px-16 pt-8 pb-32"
         tabIndex={0}
         onScroll={onScroll}
         onPointerDown={stopAuto}
@@ -121,6 +90,40 @@ export function StoryCarousel() {
             {slide}
           </div>
         ))}
+      </div>
+
+      {/* Progress below the cards: tiny dots, left aligned with the cards, the current one stretches into a short bar that fills */}
+      <div className="-mt-20 flex justify-start px-12">
+        {Array.from({ length: TOTAL }, (_, i) => {
+          const current = i === active;
+          return (
+            <button
+              key={i}
+              type="button"
+              className="flex h-32 items-center px-4"
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={current ? "true" : undefined}
+              onClick={() => {
+                stopAuto();
+                goTo(i);
+              }}
+            >
+              <span
+                className={`relative block h-4 overflow-hidden rounded-full transition-[width,background-color] duration-300 ${current ? "w-20 bg-border-default-soft" : "w-4 bg-border-default-medium"}`}
+              >
+                {current && (
+                  <span
+                    className={`absolute inset-y-0 left-0 rounded-full bg-text-primary ${auto ? "story-fill" : "w-full"}`}
+                    style={auto ? { animationPlayState: running ? "running" : "paused" } : undefined}
+                    onAnimationEnd={() => {
+                      if (auto) goTo((i + 1) % TOTAL);
+                    }}
+                  />
+                )}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
