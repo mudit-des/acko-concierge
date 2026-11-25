@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fafaf9">
+<title>ACKO Drive Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@200;300;400;500;600&family=Newsreader:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ---------- Tokens (sage palette, from the Calm Commerce reference) ---------- */
+:root {
+  /* primitives */
+  --stone-50: #fafaf9;
+  --stone-100: #f5f5f4;
+  --stone-200: #e7e5e4;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-700: #334155;
+  --sage-50: #f1f6f3;
+  --sage-100: #eaf2ed;
+  --sage-200: #d6e6dd;
+  --sage-300: #b7d0c3;
+  --sage-500: #6b9a85;
+  --sage-700: #4d7c68;
+  --sage-900: #2c4a3d;
+
+  /* semantics */
+  --surfaceBase: var(--stone-50);
+  --surfaceCard: #ffffff;
+  --surfaceTint: var(--sage-100);
+  --surfaceTintStrong: var(--sage-200);
+  --surfaceDeep: var(--sage-900);
+  --textPrimary: var(--slate-700);
+  --textSecondary: var(--slate-500);
+  --textFaint: var(--slate-400);
+  --textBrand: var(--sage-700);
+  --textOnDeep: #ffffff;
+  --textOnDeepMuted: #c9dcd1;
+  --fillBrand: var(--sage-700);
+  --fillBrandSoft: var(--sage-500);
+  --borderHairline: var(--stone-200);
+  --borderFocus: var(--sage-500);
+  --shadowCard: 0 18px 40px -24px rgba(51, 65, 85, .28);
+  --shadowChip: 0 10px 26px -14px rgba(51, 65, 85, .35);
+
+  /* radii */
+  --radiusMd: 16px;
+  --radiusLg: 24px;
+  --radiusXl: 32px;
+  --radiusFull: 999px;
+
+  /* z-index */
+  --zSticky: 10;
+
+  /* layout */
+  --gutter: 16px;
+  --maxW: 480px;
+  --ease-out: cubic-bezier(.22, .8, .2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surfaceBase);
+  color: var(--textPrimary);
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+svg { display: block; }
+:focus { outline: none; }
+:focus-visible { box-shadow: 0 0 0 3px var(--borderFocus); border-radius: var(--radiusMd); }
+
+.app {
+  max-width: var(--maxW);
+  margin-inline: auto;
+  min-height: 100svh;
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+}
+
+/* ---------- Header ---------- */
+.top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) var(--gutter) 6px;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.brand img { height: 36px; width: auto; }
+.brand-sep { width: 1px; height: 16px; background: var(--borderHairline); }
+.brand-sub { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--textBrand); font-weight: 500; }
+.help {
+  min-width: 44px; min-height: 44px; display: grid; place-items: center;
+  border-radius: var(--radiusFull); color: var(--textSecondary);
+}
+
+/* ---------- Carousel ---------- */
+.intro { padding-top: 8px; }
+.progress {
+  display: flex; gap: 6px; padding: 0 var(--gutter);
+}
+.seg {
+  flex: 1; height: 44px; position: relative; display: block;
+}
+.seg::before { /* track */
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px;
+  margin-top: -1.5px; border-radius: 3px; background: var(--sage-200);
+}
+.seg i { /* fill */
+  position: absolute; left: 0; top: 50%; height: 3px; margin-top: -1.5px;
+  border-radius: 3px; background: var(--fillBrand); width: 0;
+}
+.seg.done i, .seg.active.static i { width: 100%; }
+.seg.active:not(.static) i { animation: fill 6s linear forwards; }
+@keyframes fill { from { width: 0; } to { width: 100%; } }
+
+.track {
+  display: flex; gap: 12px; overflow-x: auto;
+  padding: 4px var(--gutter) 20px;
+  scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.track::-webkit-scrollbar { display: none; }
+
+.slide {
+  flex: 0 0 calc(100% - 36px);
+  scroll-snap-align: start;
+  min-height: 500px;
+  border-radius: var(--radiusXl);
+  overflow: hidden;
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--surfaceCard);
+  box-shadow: var(--shadowCard);
+}
+
+/* Slide 1: why / what / how */
+.slide--story {
+  background: var(--surfaceDeep); color: var(--textOnDeep);
+  padding: 28px 24px 26px; justify-content: space-between; gap: 22px;
+}
+.slide--story::before, .slide--story::after {
+  content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+}
+.slide--story::before { width: 320px; height: 320px; right: -150px; top: -130px; background: radial-gradient(circle, rgba(107,154,133,.45), rgba(107,154,133,0) 70%); }
+.slide--story::after { width: 220px; height: 220px; left: -110px; bottom: -90px; background: radial-gradient(circle, rgba(107,154,133,.3), rgba(107,154,133,0) 70%); }
+.story-block { position: relative; z-index: 1; }
+.label {
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 500;
+  color: var(--sage-300); display: flex; align-items: center; gap: 10px;
+}
+.label::before { content: ""; width: 18px; height: 1px; background: currentColor; opacity: .7; }
+.why { margin-top: 14px; font-weight: 300; font-size: 34px; line-height: 1.08; letter-spacing: -.03em; }
+.why em { font-family: "Newsreader", Georgia, serif; font-style: italic; font-weight: 300; color: var(--sage-300); letter-spacing: -.01em; }
+.story-rows { display: grid; gap: 20px; position: relative; z-index: 1; }
+.story-rows p { margin-top: 8px; font-size: 17px; line-height: 1.4; font-weight: 300; color: var(--textOnDeep); letter-spacing: -.005em; }
+.story-rows .label { color: var(--sage-300); }
+.story-rows .row + .row { padding-top: 20px; border-top: 1px solid rgba(255,255,255,.14); }
+.swipe-hint { position: relative; z-index: 1; font-size: 13px; color: var(--textOnDeepMuted); display: flex; align-items: center; gap: 6px; }
+
+/* Slides 2–5: service */
+.art {
+  height: 268px; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--tint, var(--surfaceTint)) 0%, #f6faf8 100%);
+  --car: var(--sage-700);
+}
+.slide:nth-child(3) .art { --car: var(--sage-900); }
+.slide:nth-child(5) .art { --car: var(--sage-900); }
+.art .ring {
+  position: absolute; left: 50%; top: 58%; border-radius: 50%;
+  animation: breathe 6s ease-in-out infinite;
+}
+.art .r3 { width: 320px; height: 320px; margin: -160px 0 0 -160px; background: rgba(107,154,133,.12); }
+.art .r2 { width: 232px; height: 232px; margin: -116px 0 0 -116px; background: rgba(107,154,133,.18); animation-delay: .8s; }
+.art .r1 { width: 148px; height: 148px; margin: -74px 0 0 -74px; background: rgba(107,154,133,.28); animation-delay: 1.6s; }
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.art .ground {
+  position: absolute; left: 24px; right: 24px; bottom: 34px; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--sage-300) 20%, var(--sage-300) 80%, transparent);
+}
+.art .car {
+  position: absolute; left: 50%; bottom: 36px; width: 232px; height: 87px; margin-left: -116px;
+  color: var(--car); filter: drop-shadow(0 14px 14px rgba(44,74,61,.22));
+  animation: roll .9s var(--ease-out) both;
+}
+@keyframes roll { from { transform: translateX(-36px); opacity: 0; } to { transform: none; opacity: 1; } }
+.art .core {
+  position: absolute; left: 50%; top: 104px; margin-left: -26px; width: 52px; height: 52px; border-radius: 50%;
+  background: #fff; color: var(--textBrand); display: grid; place-items: center;
+  box-shadow: var(--shadowChip); animation: drift 7s ease-in-out infinite;
+}
+.art .core::after { /* pin stem */
+  content: ""; position: absolute; left: 50%; bottom: -9px; width: 2px; height: 9px; margin-left: -1px;
+  background: var(--sage-300); border-radius: 2px;
+}
+.chip {
+  position: absolute; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  background: rgba(255,255,255,.92); color: var(--textSecondary); font-size: 13px;
+  padding: 7px 14px; border-radius: var(--radiusFull); box-shadow: var(--shadowChip);
+  animation: drift 7s ease-in-out infinite;
+}
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fillBrandSoft); }
+.chip.c1 { top: 18px; left: 16px; }
+.chip.c2 { top: 56px; right: 16px; animation-delay: 1.4s; }
+@keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+.copy { padding: 22px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+.copy .label { color: var(--textBrand); }
+.copy h2 { margin-top: 12px; font-weight: 300; font-size: 30px; line-height: 1.1; letter-spacing: -.03em; color: var(--textPrimary); }
+.copy p { margin-top: 12px; font-size: 16px; line-height: 1.5; color: var(--textSecondary); }
+.copy .more {
+  margin-top: auto; padding-top: 18px; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; font-size: 15px; font-weight: 500; color: var(--textBrand); align-self: flex-start;
+}
+
+/* ---------- Bento ---------- */
+.section { padding: 28px var(--gutter) 0; }
+.section-head .label { color: var(--textBrand); }
+.section-head h2 { margin-top: 12px; font-weight: 300; font-size: 32px; line-height: 1.08; letter-spacing: -.03em; }
+.section-head h2 em { font-family: "Newsreader", Georgia, serif; font-style: italic; font-weight: 300; color: var(--textBrand); letter-spacing: -.01em; }
+.section-head p { margin-top: 10px; color: var(--textSecondary); font-size: 16px; max-width: 34ch; }
+
+.bento {
+  margin-top: 22px; display: grid; gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(158px, auto);
+}
+.tile {
+  position: relative; display: flex; flex-direction: column; gap: 4px;
+  padding: 18px; border-radius: var(--radiusLg); background: var(--surfaceCard);
+  box-shadow: var(--shadowCard); border: 1px solid var(--borderHairline);
+  transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out);
+  overflow: hidden; min-width: 0;
+}
+.tile:active { transform: scale(.98); }
+.tile .ic {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surfaceTint); color: var(--textBrand); margin-bottom: auto;
+}
+.tile h3 { margin-top: 18px; font-size: 19px; font-weight: 500; letter-spacing: -.02em; line-height: 1.2; }
+.tile p { font-size: 14px; line-height: 1.4; color: var(--textSecondary); }
+.tile .go {
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--textFaint);
+}
+.tile--wide { grid-column: span 2; }
+.tile--tall { grid-row: span 2; }
+.tile--tint { background: var(--surfaceTint); border-color: transparent; box-shadow: none; }
+.tile--deep::after {
+  content: ""; position: absolute; width: 220px; height: 220px; right: -90px; bottom: -120px;
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(107,154,133,.45), rgba(107,154,133,0) 70%);
+}
+.tile > * { position: relative; z-index: 1; }
+.tile > .go { position: absolute; }
+.tile--tint .ic { background: #fff; }
+.tile--deep { background: var(--surfaceDeep); border-color: transparent; color: var(--textOnDeep); }
+.tile--deep .ic { background: rgba(255,255,255,.12); color: #fff; }
+.tile--deep p { color: var(--textOnDeepMuted); }
+.tile--deep .go { color: var(--sage-300); }
+
+/* repair tile: mini status track */
+.steps { display: flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 12px; color: var(--textOnDeepMuted); }
+.steps span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.steps span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sage-500); }
+.steps span:nth-child(3)::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--sage-300); }
+.steps b { flex: 1; height: 1px; min-width: 8px; background: rgba(255,255,255,.25); }
+
+/* maintain tile: due list */
+.due { margin-top: 14px; display: grid; gap: 8px; }
+.due li { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--textPrimary); padding: 8px 10px; background: #fff; border-radius: 12px; }
+.due li span { color: var(--textBrand); font-weight: 500; white-space: nowrap; }
+.due { padding: 0; margin-bottom: 0; }
+
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 24px 44px -24px rgba(51,65,85,.34); }
+  .tile--tint:hover { box-shadow: none; }
+}
+
+/* ---------- Footer note ---------- */
+.foot { padding: 36px var(--gutter) 0; text-align: center; color: var(--textFaint); font-size: 13px; }
+
+/* ---------- Sticky CTA ---------- */
+.cta-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--zSticky);
+  padding: 28px var(--gutter) calc(16px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(250,250,249,0) 0%, var(--surfaceBase) 38%);
+  pointer-events: none;
+}
+.cta-inner { max-width: calc(var(--maxW) - 2 * var(--gutter)); margin-inline: auto; pointer-events: auto; }
+.cta {
+  width: 100%; min-height: 56px; border-radius: var(--radiusFull);
+  background: var(--fillBrand); color: #fff; font-size: 17px; font-weight: 500; letter-spacing: -.01em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 14px 30px -14px rgba(77,124,104,.7);
+  transition: transform .2s var(--ease-out), background-color .2s var(--ease-out);
+}
+.cta:active { transform: scale(.98); }
+.cta:focus-visible { box-shadow: 0 0 0 3px var(--surfaceBase), 0 0 0 6px var(--borderFocus); border-radius: var(--radiusFull); }
+@media (hover: hover) and (pointer: fine) { .cta:hover { background: var(--sage-900); } }
+
+/* ---------- Entrance ---------- */
+.rise { animation: rise .7s var(--ease-out) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 600px) {
+  body { background: var(--stone-100); }
+  .app { background: var(--surfaceBase); box-shadow: 0 0 0 1px var(--borderHairline); }
+  .cta-bar { background: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="car" viewBox="0 0 240 90">
+      <path fill="currentColor" d="M8 64c0-9 6-14 17-16l30-4c9-13 22-22 41-22h46c18 0 31 10 41 24l28 4c12 2 19 8 19 18v4c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/>
+      <path fill="#fff" fill-opacity=".82" d="M72 44c8-11 17-15 28-15h16v15zM124 29h18c10 0 19 6 28 15h-46z"/>
+      <circle cx="64" cy="74" r="17" fill="#fff"/><circle cx="64" cy="74" r="13" fill="#334155"/><circle cx="64" cy="74" r="5" fill="#d6e6dd"/>
+      <circle cx="182" cy="74" r="17" fill="#fff"/><circle cx="182" cy="74" r="13" fill="#334155"/><circle cx="182" cy="74" r="5" fill="#d6e6dd"/>
+      <rect x="216" y="56" width="12" height="5" rx="2.5" fill="#fff" fill-opacity=".9"/>
+    </symbol>
+    <symbol id="i-buy" viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></symbol>
+    <symbol id="i-sell" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></symbol>
+    <symbol id="i-repair" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></symbol>
+    <symbol id="i-maintain" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M9 15l2 2 4-4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3L4 6v6c0 4.5 3.2 8 8 9 4.8-1 8-4.5 8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-clean" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<main class="app">
+  <header class="top">
+    <a class="brand" href="#" aria-label="ACKO Drive concierge home">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjI4IiBoZWlnaHQ9Ijc2IiB2aWV3Qm94PSIwIDAgMjI4IDc2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTM3LjAxIDQ2LjM1MzlDMTM0LjI3MyA0My43NjEgMTMwLjU1MiA0Mi40NjQ2IDEyNi42MzkgNDIuNDc2NkgxMTcuMDIzVjY5LjYyOTNIMTI2LjYzOUMxMjguNzI3IDY5LjYyOTMgMTMwLjY4NCA2OS4yODEyIDEzMi40MzYgNjguNTg1QzEzNS44ODEgNjcuMjI4NiAxMzguNTU4IDY0Ljc3OTggMTM5Ljk3NSA2MS4zODI3QzE0Mi4wNzUgNTYuNDI1MSAxNDAuOTk1IDUwLjAyNyAxMzYuOTk4IDQ2LjM1MzlIMTM3LjAxWk0xMjYuNjUxIDY1LjcxNjFIMTIxLjE3N1Y0Ni40MDE5QzEyMy44MTggNDYuNDczOSAxMjguNTExIDQ2LjA1MzggMTMwLjg3NiA0Ny4xNTgxQzEzNS45MTcgNDguOTQ2NyAxMzguMDU0IDU1LjE2NDcgMTM2LjA4NiA1OS45MDYyQzEzNC41ODUgNjMuNzExNCAxMzAuNzU2IDY1Ljc4ODEgMTI2LjY2MyA2NS43MTYxSDEyNi42NTFaIiBmaWxsPSIjMTIxMjEyIi8+CjxwYXRoIGQ9Ik0xNjEuNzEzIDU4LjA5NDJDMTY2LjkzNCA1NS44OTc1IDE2Ny44NzEgNDguMjc1MSAxNjMuNTAxIDQ0Ljc1OEMxNjEuNTMzIDQzLjEzNzQgMTU4Ljk4OCA0Mi40ODkzIDE1Ni4yOTkgNDIuNDg5M0gxNDQuNTM1VjY5LjY0MTlIMTQ4LjY3NlY1OS41NTg3SDE1NS4xODNMMTYyLjcwOSA2OS42NDE5SDE2Ny44MjNMMTU5LjY5NiA1OC44Mzg1QzE2MC40MDQgNTguNjU4NCAxNjEuMDg4IDU4LjQwNjMgMTYxLjcyNSA1OC4wOTQySDE2MS43MTNaTTE0OC42NjQgNDYuNDAyNUgxNTYuMDgzQzE1OS40MiA0Ni40MTQ1IDE2Mi4wODUgNDcuNTc4OSAxNjIuMTMzIDUwLjk2NEMxNjIuMjE3IDU0LjIxNyAxNTguOTc2IDU1LjgzNzUgMTU2LjA0NyA1NS43NTM1SDE0OC42NjRWNDYuNDAyNVoiIGZpbGw9IiMxMjEyMTIiLz4KPHBhdGggZD0iTTE3NC45ODUgNDIuNDc2NkgxNzAuODQ0VjY5LjYyOTJIMTc0Ljk4NVY0Mi40NzY2WiIgZmlsbD0iIzEyMTIxMiIvPgo8cGF0aCBkPSJNMTkxLjQ5OCA2My44NDM0TDE4Mi42NzUgNDIuNDc2NkgxNzguMDlMMTg5Ljc3IDY5LjgyMTNIMTkzLjE1NUwyMDQuODIyIDQyLjQ3NjZIMjAwLjM1N0wxOTEuNDk4IDYzLjg0MzRaIiBmaWxsPSIjMTIxMjEyIi8+CjxwYXRoIGQ9Ik0yMTEuMDcxIDY1Ljc1MlY1Ny44ODk1SDIyNS4yMjRWNTQuMDAwM0gyMTEuMDcxVjQ2LjM1MzhIMjI2Ljg5MlY0Mi40NzY2SDIwNi45M1Y2OS42MjkySDIyNy4wODRWNjUuNzUySDIxMS4wNzFaIiBmaWxsPSIjMTIxMjEyIi8+CjxwYXRoIGQ9Ik0xMjguMjkgNi4yMzczSDEzNS40NDRMMTQ2Ljg0OCAzMy4yMDk5SDEzOC44ODlMMTM2LjkzMyAyOC40MzI0SDEyNi42MUwxMjQuNzAxIDMzLjIwOTlIMTE2Ljg5OEwxMjguMzAyIDYuMjM3M0gxMjguMjlaTTEzNC43OTYgMjIuNjQ2NUwxMzEuODA3IDE1LjAzNjFMMTI4Ljc4MiAyMi42NDY1SDEzNC43ODRIMTM0Ljc5NloiIGZpbGw9IiMxMjEyMTIiLz4KPHBhdGggZD0iTTE0Ni4wMzkgMTkuODk2OVYxOS44MjQ4QzE0Ni4wMzkgMTIuMDIyNCAxNTIuMDQxIDUuOTAwMzkgMTYwLjE1NiA1LjkwMDM5QzE2NS42MjkgNS45MDAzOSAxNjkuMTQ2IDguMTkzMTIgMTcxLjUyMyAxMS40ODIyTDE2NS45NDEgMTUuODAzNkMxNjQuNDE3IDEzLjg5NDkgMTYyLjY1MiAxMi42NzA1IDE2MC4wODQgMTIuNjcwNUMxNTYuMzM4IDEyLjY3MDUgMTUzLjY5OCAxNS44NTE2IDE1My42OTggMTkuNzUyOFYxOS44MjQ4QzE1My42OTggMjMuODQ2MSAxNTYuMzM4IDI2Ljk3OTEgMTYwLjA4NCAyNi45NzkxQzE2Mi44OCAyNi45NzkxIDE2NC41MjUgMjUuNjgyNyAxNjYuMTMzIDIzLjcyNjFMMTcxLjcxNSAyNy42OTk0QzE2OS4xOTQgMzEuMTgwNSAxNjUuNzg1IDMzLjc0OTMgMTU5Ljg1NSAzMy43NDkzQzE1Mi4yMDkgMzMuNzQ5MyAxNDYuMDM5IDI3Ljg5MTQgMTQ2LjAzOSAxOS44OTY5WiIgZmlsbD0iIzEyMTIxMiIvPgo8cGF0aCBkPSJNMTc0LjExNyA2LjQyODcxSDE4MS41MzZWMTcuMjkyMkwxOTAuNzU1IDYuNDI4NzFIMTk5LjU1NEwxODkuNDEgMTcuOTQwNEwxOTkuODkgMzMuMjA5M0gxOTAuOTcxTDE4NC4yMzcgMjMuMjU4MUwxODEuNTI0IDI2LjI4MzFWMzMuMjA5M0gxNzQuMTA1VjYuNDI4NzFIMTc0LjExN1oiIGZpbGw9IiMxMjEyMTIiLz4KPHBhdGggZD0iTTE5OC4yNjYgMTkuODk2OVYxOS44MjQ4QzE5OC4yNjYgMTIuMTMwNCAyMDQuNDYgNS45MDAzOSAyMTIuNzMgNS45MDAzOUMyMjEuMDAxIDUuOTAwMzkgMjI3LjExMSAxMi4wNTg0IDIyNy4xMTEgMTkuNzUyOFYxOS44MjQ4QzIyNy4xMTEgMjcuNTE5MyAyMjAuOTE3IDMzLjc0OTMgMjEyLjY0NiAzMy43NDkzQzIwNC4zNzYgMzMuNzQ5MyAxOTguMjY2IDI3LjU5MTMgMTk4LjI2NiAxOS44OTY5Wk0yMTkuNTM2IDE5Ljg5NjlWMTkuODI0OEMyMTkuNTM2IDE1Ljk1OTYgMjE2Ljc0IDEyLjU5ODUgMjEyLjY0NiAxMi41OTg1QzIwOC41NTMgMTIuNTk4NSAyMDUuODc2IDE1Ljg4NzYgMjA1Ljg3NiAxOS43NTI4VjE5LjgyNDhDMjA1Ljg3NiAyMy42OTAxIDIwOC42NzMgMjcuMDUxMSAyMTIuNzE4IDI3LjA1MTFDMjE2Ljc2NCAyNy4wNTExIDIxOS41MjQgMjMuNzYyMSAyMTkuNTI0IDE5Ljg5NjlIMjE5LjUzNloiIGZpbGw9IiMxMjEyMTIiLz4KPHBhdGggZD0iTTk3LjcxODMgMjYuMzMxOFY0OS4yNTkxQzk3LjcxODMgNTEuMDIzNyA5Ni45MjYxIDUyLjUzNjIgOTUuMzE3NiA1My41OTI1Qzc1LjI0NzEgNjYuNzQ4NyA2MC4wNTAzIDcyLjI3MDUgNTQuNzMyNiA3My44MDdDNDcuMzk4MiA3NS45MzE3IDQzLjUwOSA3NS43MDM2IDQyLjg4NDggNzUuNjU1NkMyOS41MDA1IDc0LjY4MzIgNi45NDUzMSA1Ni4yNTc0IDYuOTQ1MzEgNTYuMjU3NEM2Ljk0NTMxIDU2LjI1NzQgMjUuMzQ3MiA2MC43NTg4IDY3Ljg2NDggNDAuNTA4M0M3NS44MzUzIDM2LjcxNTEgODQuNzMwMiAzMi42MjE4IDk1LjA3NzUgMjcuODIwM0M5NS4wNzc1IDI3LjgyMDMgOTcuMzM0MiAyNi44NDggOTcuNzE4MyAyNi4zMTk4VjI2LjMzMThaIiBmaWxsPSIjMEQ4NDUyIi8+CjxwYXRoIGQ9Ik05Ni42NSAyNS41NTExQzk2Ljc3IDI1LjQ1NSA5Ni45MTQxIDI1LjMyMyA5Ni45ODYxIDI1LjIzOUM5Ny4wODIxIDI1LjExODkgOTcuMTY2MSAyNC45OTg5IDk3LjIxNDIgMjQuODU0OUM5Ny4zNDYyIDI0LjQ3MDcgOTcuMzEwMiAyMy45OTA2IDk3LjA5NDEgMjMuNjQyNUM5Ni42OTggMjIuOTk0MyA5Ni4wNDk4IDIyLjU2MjEgOTUuMzE3NSAyMi4wOTRDNzUuMjQ3MSA4LjkzNzc2IDYwLjA1MDMgMy40MTYgNTQuNzMyNiAxLjg3OTUxQzQ3LjM5ODIgLTAuMjQ1MTcyIDQzLjUwOSAtMC4wMTcxMDkxIDQyLjg4NDggMC4wMzA5MDYzQzI5LjUwMDUgMS4wMDMyMiA2Ljk0NTMxIDE5LjQyOTEgNi45NDUzMSAxOS40MjkxQzYuOTQ1MzEgMTkuNDI5MSAyNS4zNDcyIDE0LjkyNzcgNjcuODY0OCAzNS4xNzgxQzY5LjIzMzIgMzUuODI2MyA3MC42MjU3IDM2LjQ4NjYgNzIuMDU0MSAzNy4xNTg4TDk1LjI4MTUgMjYuMzkxNEM5NS4yODE1IDI2LjM5MTQgOTYuNDU3OSAyNS43MzExIDk2LjY2MiAyNS41NjMxTDk2LjY1IDI1LjU1MTFaIiBmaWxsPSIjMERCMjcyIi8+CjxwYXRoIGQ9Ik0yOC40ODUxIDM3LjgxODZDMjguNTA5MSAzMi45MjExIDI5LjEyMTMgMjguMDM1NSAzMC4yNDk3IDIzLjE5OEwzMC40MDU3IDIyLjU5NzhDMjIuMDI3IDIwLjYyOTEgMTUuODU3MSAyMC4yMDkgMTIuMTQ3OSAyMC4yMDlDOS4wODY5MSAyMC4yMDkgNy40NjYzOSAyMC40ODUxIDYuOTE0MjEgMjAuNjA1MUM1LjkxNzg5IDIwLjgyMTIgNS4yMDk2NyAyMS42MTM0IDQuNzA1NTEgMjIuMjg1N0MxLjcxNjU1IDI2LjI1ODkgMCAzMS45MjQ3IDAgMzcuODE4NkMwIDQzLjcyNDUgMS43MTY1NSA0OS4zNzgzIDQuNzA1NTEgNTMuMzUxNkM1LjIwOTY3IDU0LjAyMzggNS45MTc4OSA1NC44MTYxIDYuOTE0MjEgNTUuMDMyMUM3LjQ2NjM5IDU1LjE1MjIgOS4wOTg5MSA1NS40MjgzIDEyLjE0NzkgNTUuNDI4M0MxNS44NTcxIDU1LjQyODMgMjIuMDI3IDU1LjAwODEgMzAuNDA1NyA1My4wMzk1TDMwLjI0OTcgNTIuNDM5M0MyOS4xMjEzIDQ3LjYwMTcgMjguNTA5MSA0Mi43MDQyIDI4LjQ4NTEgMzcuODE4NloiIGZpbGw9IiM2M0UwOEQiLz4KPC9zdmc+Cg==" width="108" height="36" alt="ACKO Drive">
+      <span class="brand-sep" aria-hidden="true"></span>
+      <span class="brand-sub">Concierge</span>
+    </a>
+    <button class="help" aria-label="Help">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-help"/></svg>
+    </button>
+  </header>
+
+  <!-- Intro carousel -->
+  <section class="intro rise" aria-roledescription="carousel" aria-label="What the concierge does">
+    <div class="progress" id="progress"></div>
+
+    <div class="track" id="track" tabindex="0">
+      <!-- 1 · why / what / how -->
+      <article class="slide slide--story" aria-roledescription="slide" aria-label="1 of 5">
+        <div class="story-block">
+          <div class="label">Why</div>
+          <h1 class="why">Looking after a car shouldn’t take up <em>your week.</em></h1>
+        </div>
+        <div class="story-rows">
+          <div class="row">
+            <div class="label">What</div>
+            <p>A personal concierge for everything your car needs, from ACKO Drive.</p>
+          </div>
+          <div class="row">
+            <div class="label">How</div>
+            <p>Tell us once. We collect the car, handle the work and keep you updated.</p>
+          </div>
+        </div>
+        <div class="swipe-hint">Swipe to see what we do
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-arrow"/></svg>
+        </div>
+      </article>
+
+      <!-- 2 · buy -->
+      <article class="slide" aria-roledescription="slide" aria-label="2 of 5">
+        <div class="art" style="--tint:#eaf2ed">
+          <i class="ring r3"></i><i class="ring r2"></i><i class="ring r1"></i>
+          <div class="core"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-buy"/></svg></div><span class="ground"></span><svg class="car" aria-hidden="true"><use href="#car"/></svg>
+          <span class="chip c1"><i class="dot"></i>3 cars shortlisted</span>
+          <span class="chip c2"><i class="dot"></i>Inspection done</span>
+        </div>
+        <div class="copy">
+          <div class="label">Buy</div>
+          <h2>Buy a car with less legwork.</h2>
+          <p>Share your budget and needs. We shortlist, inspect and handle the paperwork.</p>
+        </div>
+      </article>
+
+      <!-- 3 · sell -->
+      <article class="slide" aria-roledescription="slide" aria-label="3 of 5">
+        <div class="art" style="--tint:#e3eee8">
+          <i class="ring r3"></i><i class="ring r2"></i><i class="ring r1"></i>
+          <div class="core"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sell"/></svg></div><span class="ground"></span><svg class="car" aria-hidden="true"><use href="#car"/></svg>
+          <span class="chip c1"><i class="dot"></i>Offer received</span>
+          <span class="chip c2"><i class="dot"></i>RC transfer started</span>
+        </div>
+        <div class="copy">
+          <div class="label">Sell</div>
+          <h2>Sell at a fair price.</h2>
+          <p>Get a verified offer. We handle buyer checks, transfer and payment follow-up.</p>
+        </div>
+      </article>
+
+      <!-- 4 · repair -->
+      <article class="slide" aria-roledescription="slide" aria-label="4 of 5">
+        <div class="art" style="--tint:#eaf2ed">
+          <i class="ring r3"></i><i class="ring r2"></i><i class="ring r1"></i>
+          <div class="core"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-repair"/></svg></div><span class="ground"></span><svg class="car" aria-hidden="true"><use href="#car"/></svg>
+          <span class="chip c1"><i class="dot"></i>Pickup at 10:30 am</span>
+          <span class="chip c2"><i class="dot"></i>Quote approved</span>
+        </div>
+        <div class="copy">
+          <div class="label">Repair</div>
+          <h2>Repairs without the back and forth.</h2>
+          <p>We pick up your car, compare workshop quotes and bring it back fixed.</p>
+        </div>
+      </article>
+
+      <!-- 5 · maintain -->
+      <article class="slide" aria-roledescription="slide" aria-label="5 of 5">
+        <div class="art" style="--tint:#e3eee8">
+          <i class="ring r3"></i><i class="ring r2"></i><i class="ring r1"></i>
+          <div class="core"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-maintain"/></svg></div><span class="ground"></span><svg class="car" aria-hidden="true"><use href="#car"/></svg>
+          <span class="chip c1"><i class="dot"></i>Service due in 12 days</span>
+          <span class="chip c2"><i class="dot"></i>Pickup booked</span>
+        </div>
+        <div class="copy">
+          <div class="label">Maintain</div>
+          <h2>Servicing, always on schedule.</h2>
+          <p>We track what’s due, book the slot, and handle pickup and drop.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Bento -->
+  <section class="section" id="services" aria-labelledby="services-title">
+    <div class="section-head">
+      <div class="label">Services</div>
+      <h2 id="services-title">Everything your car needs, <em>in one place.</em></h2>
+      <p>Pick a service, or just tell the concierge what you need.</p>
+    </div>
+
+    <div class="bento">
+      <a class="tile tile--wide tile--deep" href="#repair">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-repair"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Repair</h3>
+        <p>Pickup, workshop and delivery, handled.</p>
+        <div class="steps" aria-hidden="true"><span>Picked up</span><b></b><span>In workshop</span><b></b><span>Delivered</span></div>
+      </a>
+
+      <a class="tile" href="#buy">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-buy"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Buy</h3>
+        <p>Shortlisted and inspected cars.</p>
+      </a>
+
+      <a class="tile tile--tint" href="#sell">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sell"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Sell</h3>
+        <p>A verified offer and clean transfer.</p>
+      </a>
+
+      <a class="tile tile--tall tile--tint" href="#maintain">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-maintain"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Maintain</h3>
+        <p>Scheduled servicing with pickup and drop.</p>
+        <ul class="due" aria-hidden="true">
+          <li>Oil change <span>12 days</span></li>
+          <li>Tyre rotation <span>40 days</span></li>
+          <li>Brake check <span>3 months</span></li>
+        </ul>
+      </a>
+
+      <a class="tile" href="#insurance">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Insurance and claims</h3>
+        <p>Renewals and claim support.</p>
+      </a>
+
+      <a class="tile" href="#paperwork">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-doc"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Paperwork</h3>
+        <p>RC, PUC and challans.</p>
+      </a>
+
+      <a class="tile" href="#care">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clean"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Cleaning</h3>
+        <p>Wash and detailing at your door.</p>
+      </a>
+
+      <a class="tile tile--deep" href="#roadside">
+        <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-help"/></svg></div>
+        <span class="go" aria-hidden="true"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev"/></svg></span>
+        <h3>Roadside help</h3>
+        <p>Towing and breakdown support.</p>
+      </a>
+    </div>
+  </section>
+
+  <p class="foot">ACKO Drive concierge · Draft concept</p>
+
+  <div class="cta-bar">
+    <div class="cta-inner">
+      <button class="cta" type="button">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chat"/></svg>
+        Talk to your concierge
+      </button>
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const track = document.getElementById('track');
+  const progress = document.getElementById('progress');
+  const slides = [...track.querySelectorAll('.slide')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active = 0;
+  let auto = !reduce;   // stops for good once the user takes over
+
+  // Segmented progress (one per slide)
+  const segs = slides.map((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'seg';
+    b.type = 'button';
+    b.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    b.innerHTML = '<i></i>';
+    b.addEventListener('click', () => { stopAuto(); goTo(i); });
+    b.querySelector('i').addEventListener('animationend', () => {
+      if (auto && active === i) goTo((i + 1) % slides.length);
+    });
+    progress.appendChild(b);
+    return b;
+  });
+
+  function render() {
+    segs.forEach((s, i) => {
+      s.classList.toggle('done', i < active);
+      s.classList.toggle('active', i === active);
+      s.classList.toggle('static', !auto);
+      if (i === active) s.setAttribute('aria-current', 'true'); else s.removeAttribute('aria-current');
+    });
+  }
+
+  function goTo(i) {
+    const el = slides[i];
+    track.scrollTo({ left: el.offsetLeft - slides[0].offsetLeft, behavior: reduce ? 'auto' : 'smooth' });
+    active = i;
+    render();
+  }
+
+  function stopAuto() {
+    if (!auto) return;
+    auto = false;
+    render();
+  }
+
+  // Any manual interaction ends autoplay
+  ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(ev =>
+    track.addEventListener(ev, stopAuto, { passive: true }));
+
+  // Keep the active index in sync with manual swipes
+  let raf;
+  track.addEventListener('scroll', () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      const step = slides[1].offsetLeft - slides[0].offsetLeft;
+      const i = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / step)));
+      if (i !== active) { active = i; render(); }
+    });
+  }, { passive: true });
+
+  // Pause the timer while the tab is hidden
+  document.addEventListener('visibilitychange', () => {
+    segs.forEach(s => s.querySelector('i').style.animationPlayState = document.hidden ? 'paused' : 'running');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

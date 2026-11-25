@@ -1,0 +1,106 @@
+/* ============================================================
+   Concierge mascot: a small sage hatchback with a face.
+   Animation is driven by data-mood / data-talking on the svg,
+   so React only changes two attributes. Transform and opacity
+   only. Everything is static under prefers-reduced-motion
+   (the mood still shows through its props and eyes).
+   ============================================================ */
+
+.mascot { overflow: visible; }
+.mascot * { transform-box: fill-box; }
+
+/* Colours: brand tokens where they exist, small literal accents for the face */
+.m-shadow    { fill: var(--solidGrey750); opacity: 0.12; }
+.m-tyre      { fill: var(--solidGrey750); }
+.m-body-low  { fill: var(--brandPrimary400); }
+.m-cabin     { fill: var(--brandPrimary300); }
+.m-glass     { fill: var(--brandPrimary900); }
+.m-shine     { fill: #fff; opacity: 0.35; }
+.m-eye-white { fill: #fff; }
+.m-pupil     { fill: var(--brandPrimary950); }
+.m-eye-glint { fill: #fff; }
+.m-cheek     { fill: #f6c9a8; opacity: 0.85; }
+.m-light     { fill: #ffe9a8; filter: drop-shadow(0 0 5px rgba(255, 210, 122, 0.9)); }
+.m-grille    { fill: var(--brandPrimary700); }
+.m-mouth     { fill: none; stroke: var(--brandPrimary950); stroke-width: 4; stroke-linecap: round; }
+.m-mouth-open{ fill: var(--brandPrimary950); }
+.m-happy-eye { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; }
+.m-mirror    { fill: var(--brandPrimary500); }
+.m-wrench    { fill: var(--brandPrimary200); stroke: var(--brandPrimary700); stroke-width: 2; }
+.m-bolt      { fill: var(--brandPrimary600); }
+.m-dot       { fill: var(--brandPrimary500); }
+.m-spark     { fill: #ffd98a; }
+.m-road      { stroke: var(--brandPrimary300); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 14 22; }
+.m-speed     { stroke: var(--brandPrimary300); stroke-width: 4; stroke-linecap: round; }
+
+/* Mood switches: which parts show */
+.m-wrench-g, .m-dots, .m-sparkles, .m-road, .m-speed-g, .m-happy-eyes, .m-mouth-open { opacity: 0; transition: opacity 0.3s var(--motionEaseOut); }
+.mascot[data-mood="working"] .m-wrench-g,
+.mascot[data-mood="thinking"] .m-dots,
+.mascot[data-mood="asking"] .m-dots,
+.mascot[data-mood="celebrating"] .m-sparkles,
+.mascot[data-mood="driving"] .m-road,
+.mascot[data-mood="driving"] .m-speed-g { opacity: 1; }
+.mascot[data-mood="happy"] .m-happy-eyes,
+.mascot[data-mood="celebrating"] .m-happy-eyes { opacity: 1; }
+.mascot[data-mood="happy"] .m-eyes,
+.mascot[data-mood="celebrating"] .m-eyes { opacity: 0; }
+.mascot[data-mood="celebrating"] .m-mouth-open { opacity: 1; }
+.mascot[data-mood="celebrating"] .m-mouth { opacity: 0; }
+.m-eyes, .m-mouth { transition: opacity 0.2s var(--motionEaseOut); }
+
+/* Where the pupils look */
+.m-pupil-g { transition: transform 0.35s var(--motionEaseOut); }
+.mascot[data-mood="thinking"] .m-pupil-g { transform: translate(5px, -6px); }
+.mascot[data-mood="asking"] .m-pupil-g { transform: translate(-4px, -3px); }
+.mascot[data-mood="working"] .m-pupil-g { transform: translate(5px, 2px); }
+
+/* Head tilt when asking */
+.m-body { transform-origin: 50% 100%; transition: transform 0.4s var(--motionEaseOut); }
+.mascot[data-mood="asking"] .m-body { transform: rotate(-3deg); }
+
+/* ---------- Motion ---------- */
+@keyframes m-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes m-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+@keyframes m-talk { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.9); } }
+@keyframes m-glow { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+@keyframes m-jump {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-18px) scale(0.97, 1.04); }
+  60% { transform: translateY(0) scale(1.04, 0.96); }
+  75% { transform: translateY(-5px) scale(1, 1); }
+}
+@keyframes m-shake { from { transform: translateY(0); } to { transform: translateY(-1.5px); } }
+@keyframes m-dash { to { stroke-dashoffset: -72; } }
+@keyframes m-speed { 0% { transform: translateX(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(-16px); opacity: 0; } }
+@keyframes m-work { from { transform: rotate(-26deg); } to { transform: rotate(20deg); } }
+@keyframes m-dot { 0%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+@keyframes m-spark { 0%, 100% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } }
+
+.m-float { animation: m-bob 3.2s var(--motionEaseInOut) infinite; }
+.m-eye { transform-origin: 50% 50%; animation: m-blink 5s var(--motionEaseInOut) infinite; }
+.m-eye + .m-eye { animation-delay: 0.02s; }
+
+.mascot[data-talking] .m-mouth { transform-origin: 50% 20%; animation: m-talk 0.32s var(--motionEaseInOut) infinite; }
+.mascot[data-talking] .m-light { animation: m-glow 0.6s var(--motionEaseInOut) infinite; }
+
+.mascot[data-mood="celebrating"] .m-jump { animation: m-jump 1.1s var(--motionEaseOut) 3; transform-origin: 50% 100%; }
+.mascot[data-mood="driving"] .m-jump { animation: m-shake 0.28s var(--motionEaseInOut) infinite alternate; }
+.mascot[data-mood="driving"] .m-road { animation: m-dash 0.6s linear infinite; } /* linear: looping ground, like a loader */
+.mascot[data-mood="driving"] .m-speed { animation: m-speed 0.55s var(--motionEaseOut) infinite; }
+.mascot[data-mood="driving"] .m-speed:nth-child(2) { animation-delay: 0.18s; }
+.mascot[data-mood="driving"] .m-speed:nth-child(3) { animation-delay: 0.36s; }
+.mascot[data-mood="working"] .m-wrench-spin { transform-origin: 50% 92%; animation: m-work 0.8s var(--motionEaseInOut) infinite alternate; }
+.mascot[data-mood="thinking"] .m-dot, .mascot[data-mood="asking"] .m-dot { animation: m-dot 1.2s var(--motionEaseInOut) infinite; }
+.m-dot:nth-child(2) { animation-delay: 0.2s !important; }
+.m-dot:nth-child(3) { animation-delay: 0.4s !important; }
+.mascot[data-mood="celebrating"] .m-spark { transform-origin: 50% 50%; animation: m-spark 1.2s var(--motionEaseInOut) infinite; }
+.m-spark:nth-child(2) { animation-delay: 0.3s !important; }
+.m-spark:nth-child(3) { animation-delay: 0.6s !important; }
+.m-spark:nth-child(4) { animation-delay: 0.9s !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot *, .mascot { animation: none !important; transition-duration: 0.01ms !important; }
+  .mascot[data-mood="celebrating"] .m-spark { transform: scale(1); opacity: 1; }
+  .mascot[data-mood="thinking"] .m-dot, .mascot[data-mood="asking"] .m-dot { opacity: 1; }
+}

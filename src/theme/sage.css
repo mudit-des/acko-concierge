@@ -1,0 +1,172 @@
+/* ============================================================
+   ACKO Concierge — Sage brand
+   ------------------------------------------------------------
+   A brand override in the same shape as [data-brand="ackodrive"]
+   in @acko/tokens. Because every component reads the brand layer
+   (--brandPrimary*, --brandAction*, --brandSelection*, ...),
+   switching <html data-brand="ackoconcierge"> re-colours Button,
+   Badge, Chip, Card accent, Surface brand, focus rings, etc.
+   without touching any component.
+
+   Rules for this file
+   - Raw hex values live ONLY in the sage scale (Layer 1) below.
+   - Everything else aliases the scale (Layer 2), like the DS does.
+   - Neutrals (greys, text, page surfaces) stay as shipped by
+     @acko/tokens. Only the brand layer is overridden.
+   ============================================================ */
+
+/* :root[...] on purpose: the component stylesheets (@acko/css/*) re-inline
+   tokens.css after this file, so a plain attribute selector would lose to
+   their later :root rules. The extra specificity wins regardless of order. */
+:root[data-brand="ackoconcierge"] {
+  /* --- Sage scale (primitive, brand-only) ---------------------
+     Anchors come from the Calm Commerce reference:
+     100 #eaf2ed · 300 #b7d0c3 · 500 #6b9a85 · 600 #4d7c68 · 850 #2c4a3d */
+  --sage50:  #f5f9f7;
+  --sage100: #eaf2ed;
+  --sage150: #dfebe5;
+  --sage200: #d6e6dd;
+  --sage300: #b7d0c3;
+  --sage400: #8fb3a0;
+  --sage500: #6b9a85;
+  --sage600: #4d7c68;
+  --sage700: #3f6a57;
+  --sage800: #335646;
+  --sage850: #2c4a3d;
+  --sage900: #243d32;
+  --sage950: #1b2e25;
+
+  /* --- BrandPrimary — scale --- */
+  --brandPrimary50:     var(--sage50);
+  --brandPrimary100:    var(--sage100);
+  --brandPrimary150:    var(--sage150);
+  --brandPrimary200:    var(--sage200);
+  --brandPrimary300:    var(--sage300);
+  --brandPrimary400:    var(--sage400);
+  --brandPrimary500:    var(--sage500);
+  --brandPrimary600:    var(--sage600);
+  --brandPrimary700:    var(--sage700);
+  --brandPrimary800:    var(--sage800);
+  --brandPrimary850:    var(--sage850);
+  --brandPrimary900:    var(--sage900);
+  --brandPrimary950:    var(--sage950);
+  --brandPrimaryWhite:  var(--solidGreyWhite);
+
+  /* --- BrandSecondary — same scale (no second hue in this brand) --- */
+  --brandSecondary100:  var(--solidGreyWhite);
+  --brandSecondary200:  var(--sage50);
+  --brandSecondary300:  var(--sage100);
+  --brandSecondary400:  var(--sage200);
+  --brandSecondary500:  var(--sage400);
+  --brandSecondary600:  var(--sage600);
+  --brandSecondary700:  var(--sage700);
+  --brandSecondary800:  var(--sage800);
+  --brandSecondary900:  var(--sage900);
+
+  /* --- BrandAction — primary buttons ---
+     Sage 600 (not the DS default 950) so the main CTA reads as sage,
+     as in the reference. White on sage 600 = 4.9:1. */
+  --brandActionDefault:          var(--brandPrimary600);
+  --brandActionHover:            var(--brandPrimary700);
+  --brandActionActive:           var(--brandPrimary800);
+  --brandActionOnAction:         var(--brandPrimaryWhite);
+  --brandActionDefaultInverse:   var(--brandPrimary500);
+  --brandActionHoverInverse:     var(--brandPrimary400);
+  --brandActionActiveInverse:    var(--brandPrimary300);
+  --brandActionOnActionInverse:  var(--brandPrimary950);
+
+  /* --- BrandSelection — checkbox, radio, switch, chip selected --- */
+  --brandSelectionDefault:         var(--brandPrimary600);
+  --brandSelectionHover:           var(--brandPrimary700);
+  --brandSelectionActive:          var(--brandPrimary850);
+  --brandSelectionOnSelection:     var(--brandPrimaryWhite);
+  --brandSelectionDefaultInverse:  var(--brandPrimary400);
+  --brandSelectionHoverInverse:    var(--brandPrimary300);
+
+  /* --- BrandSurface — tinted surfaces --- */
+  --brandSurfaceSubtle:              var(--brandPrimary100);
+  --brandSurfaceSubtleHover:         var(--brandPrimary150);
+  --brandSurfaceSubtleInverse:       var(--brandPrimary900);
+  --brandSurfaceSubtleHoverInverse:  var(--brandPrimary850);
+
+  /* --- BrandLabel — brand-coloured text --- */
+  --brandLabelDefault:         var(--brandPrimary700);
+  --brandLabelHover:           var(--brandPrimary500);
+  --brandLabelDefaultInverse:  var(--brandPrimary200);
+  --brandLabelHoverInverse:    var(--brandPrimary300);
+
+  /* --- BrandAlpha — translucent sage (rgb of sage500) --- */
+  --brandAlphaNone:    rgba(107, 154, 133, 0);
+  --brandAlphaSubtle:  rgba(107, 154, 133, 0.10);
+  --brandAlphaWash:    rgba(107, 154, 133, 0.16);
+  --brandAlphaLight:   rgba(107, 154, 133, 0.24);
+  --brandAlphaMedium:  rgba(107, 154, 133, 0.40);
+  --brandAlphaBold:    rgba(107, 154, 133, 0.55);
+  --brandAlphaStrong:  rgba(107, 154, 133, 0.80);
+
+  /* --- BrandRadius / Typeface — unchanged from the DS --- */
+  --brandRadiusCard:    var(--radius5xl);
+  --brandRadiusButton:  var(--radiusFull);
+  --brandTypefaceFont:  "Euclid Circular B";
+
+  /* --- Gaps in the shipped component tokens ---
+     Card variant="accent" is hard-wired to purple in @acko/tokens
+     (--surfaceAccentPurpleSubtle). Re-point it at the brand tint. */
+  --cardFillAccent: var(--brandSurfaceSubtle);
+}
+
+/* ============================================================
+   Buttons are black (neutral), not sage
+   ------------------------------------------------------------
+   Sage stays the brand accent for surfaces, selection and text.
+   Every button variant uses the design system's near-black greys,
+   so the primary action reads as the strongest thing on screen.
+   These override the button component tokens only.
+   ============================================================ */
+:root[data-brand="ackoconcierge"] {
+  /* Primary: solid black fill, white label */
+  --buttonFillPrimaryDefault: var(--solidGrey750);
+  --buttonFillPrimaryHover:   var(--solidGrey650);
+  --buttonFillPrimaryActive:  var(--solidGrey800);
+  --buttonFillPrimaryText:    var(--solidGreyWhite);
+  /* The thin gradient stroke on primary becomes a faint highlight, not a sage line */
+  --buttonBorderDefaultGradientTop:    rgba(255, 255, 255, 0.22);
+  --buttonBorderDefaultGradientBottom: rgba(255, 255, 255, 0);
+
+  /* Secondary: white fill, black outline and label */
+  --buttonFillSecondaryDefault: var(--surfaceCardDefault);
+  --buttonBorderSecondaryDefault: var(--solidGrey750);
+  --buttonFillSecondaryText:    var(--textPrimary);
+  --buttonFillSecondaryHover:   var(--solidGrey150);
+  --buttonFillSecondaryActive:  var(--solidGrey200);
+
+  /* Ghost: black label, grey wash on hover */
+  --buttonFillGhostText:   var(--textPrimary);
+  --buttonFillGhostHover:  var(--solidGrey150);
+  --buttonFillGhostActive: var(--solidGrey200);
+
+  /* Link: black label */
+  --buttonFillLinkText:      var(--textPrimary);
+  --buttonFillLinkTextHover: var(--textSecondary);
+}
+
+/* ============================================================
+   Concierge tokens (page-level, sage only)
+   ============================================================ */
+:root[data-brand="ackoconcierge"] {
+  /* Layout */
+  --conciergeColumnMax: 480px;
+
+  /* Motion — durations follow acko-motion-system.
+     The cubic-béziers are CSS approximations of the 100→0 (ease-out)
+     and 0→100→0 (ease-in-out) velocity curves. Durations are the
+     source of truth; see docs/sage-style-guide.md. */
+  --motionRevealDuration:  300ms;   /* element reveal, 260–340ms        */
+  --motionOpenDuration:    550ms;   /* major open, 500–600ms            */
+  --motionExitDuration:    400ms;   /* major exit, 350–450ms            */
+  --motionEaseOut:         cubic-bezier(0.2, 0.8, 0.4, 1);
+  --motionEaseInOut:       cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Story (carousel) autoplay */
+  --storyDuration: 6000ms;
+}
