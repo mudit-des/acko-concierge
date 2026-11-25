@@ -15,8 +15,8 @@ import { navigate } from "../router";
  */
 
 const EASE = "cubic-bezier(.22,.8,.2,1)";
-/** Big, tight, left aligned. Inline because component CSS beats utilities. */
-const TITLE = { fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em", textAlign: "left" } as const;
+/** Big, tight, centred. Inline because component CSS beats utilities. */
+const TITLE = { fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em", textAlign: "center" } as const;
 
 /** Where each pill floats before it gathers: left %, top %, tilt in degrees, scale. */
 const SCATTER: [number, number, number, number][] = [
@@ -112,7 +112,7 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {/* Bottom: the title swaps in place, left aligned and large, then the subline and the button */}
+        {/* Bottom: the title swaps in place, centred and large, then the subline and the button */}
         <div className="flex flex-col">
           <div className="grid">
             <Typography
@@ -147,6 +147,7 @@ export default function Onboarding() {
           <Typography
             textStyle="body-md-regular"
             color="secondary"
+            align="center"
             style={{ marginTop: 14, opacity: gathered ? 1 : 0, transition: `opacity 1.2s ease ${gathered ? "1.6s" : "0s"}` }}
           >
             One place for everything your car needs.
