@@ -12,7 +12,7 @@ export function CtaBar({ label = "Talk to your concierge" }: { label?: string })
       }}
     >
       <div className="pointer-events-auto mx-auto w-full max-w-480 px-16 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <Button size="lg" fullWidth iconLeft={<Messages aria-hidden="true" />}>
+        <Button size="md" fullWidth iconLeft={<Messages aria-hidden="true" />}>
           {label}
         </Button>
       </div>

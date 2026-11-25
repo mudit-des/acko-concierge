@@ -122,3 +122,25 @@ body {
   .story-fill { width: 100%; }
   html { scroll-behavior: auto; }
 }
+
+/* App-opening screen: pills bob gently, the concierge rings breathe */
+@keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.onb-drift { animation: onb-drift 7s ease-in-out infinite; }
+.onb-ring { animation: onb-breathe 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .onb *, .onb-drift, .onb-ring { animation: none !important; transition: none !important; }
+}
+
+/* Brief highlight on an update the reader jumped to from the steps list */
+@keyframes flash-update {
+  0% { background-color: var(--brandSurfaceSubtle); }
+  100% { background-color: transparent; }
+}
+.flash {
+  border-radius: 24px;
+  animation: flash-update 1.4s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash { animation: none; }
+}

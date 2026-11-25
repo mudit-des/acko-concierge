@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@acko/button";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Card } from "@acko/card";
-import { ArrowRight } from "@acko/icons";
 import { Typography } from "@acko/typography";
-import { asset } from "../asset";
-import { SLIDES, type Slide } from "../data/services";
 import { Bubble } from "./Bubble";
-import { Icon } from "./Icon";
+import { asset } from "../asset";
+import { USE_CASES, type UseCase } from "../data/story";
 
-const TOTAL = SLIDES.length + 1; // story slide + one per theme
+/*
+ * Home carousel: four things the concierge can do for a customer. Each slide is a white card
+ * with an illustration, the customer's own words and the concierge's answer.
+ */
+
+const TOTAL = USE_CASES.length;
 
 export function StoryCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -58,13 +60,11 @@ export function StoryCarousel() {
   }, []);
 
   const running = auto && inView && tabVisible;
-  const setSlideRef = (i: number) => (el: HTMLDivElement | null) => {
-    slideRefs.current[i] = el;
-  };
+  const slides: ReactNode[] = USE_CASES.map((u) => <UseCaseSlide key={u.id} useCase={u} />);
 
   return (
     <section ref={rootRef} className="pt-8" aria-roledescription="carousel" aria-label="Why a concierge">
-      {/* Segmented progress */}
+      {/* Segmented progress: neutral track, black fill */}
       <div className="flex gap-6 px-16">
         {Array.from({ length: TOTAL }, (_, i) => {
           const done = i < active;
@@ -81,11 +81,9 @@ export function StoryCarousel() {
                 goTo(i);
               }}
             >
-              <span className="relative block h-3 w-full overflow-hidden rounded-full bg-brand-primary150">
+              <span className="relative block h-3 w-full overflow-hidden rounded-full bg-border-default-soft">
                 <span
-                  className={`absolute inset-y-0 left-0 rounded-full bg-brand-selection-default ${
-                    current && auto ? "story-fill" : done || current ? "w-full" : "w-0"
-                  }`}
+                  className={`absolute inset-y-0 left-0 rounded-full bg-text-primary ${current && auto ? "story-fill" : done || current ? "w-full" : "w-0"}`}
                   style={current && auto ? { animationPlayState: running ? "running" : "paused" } : undefined}
                   onAnimationEnd={() => {
                     if (current && auto) goTo((i + 1) % TOTAL);
@@ -108,26 +106,19 @@ export function StoryCarousel() {
         onWheel={stopAuto}
         onKeyDown={stopAuto}
       >
-        <div
-          ref={setSlideRef(0)}
-          role="group"
-          aria-roledescription="slide"
-          aria-label={`1 of ${TOTAL}`}
-          className="flex basis-[calc(100%-36px)] shrink-0 snap-start flex-col"
-        >
-          <StorySlide />
-        </div>
-
-        {SLIDES.map((slide, idx) => (
+        {slides.map((slide, i) => (
           <div
-            key={slide.id}
-            ref={setSlideRef(idx + 1)}
+            key={i}
+            ref={(el) => {
+              slideRefs.current[i] = el;
+            }}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${idx + 2} of ${TOTAL}`}
+            aria-label={`${i + 1} of ${TOTAL}`}
+            data-active={active === i}
             className="flex basis-[calc(100%-36px)] shrink-0 snap-start flex-col"
           >
-            <ThemeSlide slide={slide} />
+            {slide}
           </div>
         ))}
       </div>
@@ -139,19 +130,16 @@ export function StoryCarousel() {
 
 const FADE = "linear-gradient(to bottom, #000 84%, transparent 100%)";
 
-/**
- * Illustration panel. The scenes have a misty vignette, so the image runs edge to
- * edge and its bottom fades into whatever surface the copy sits on.
- */
-function Art({ src, alt, fadeTo, priority = false }: { src: string; alt: string; fadeTo: string; priority?: boolean }) {
+/** Illustration at the top of a card. Its bottom fades into the white card below. */
+function Art({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className={`relative h-224 shrink-0 overflow-hidden ${fadeTo}`}>
+    <div className="relative h-168 shrink-0 overflow-hidden bg-surface-card-default">
       <img
         src={src}
         alt={alt}
         width={1200}
         height={900}
-        loading={priority ? "eager" : "lazy"}
+        loading="lazy"
         decoding="async"
         className="size-full object-cover object-[50%_58%]"
         style={{ WebkitMaskImage: FADE, maskImage: FADE }}
@@ -160,98 +148,39 @@ function Art({ src, alt, fadeTo, priority = false }: { src: string; alt: string;
   );
 }
 
-/** Slide 1: illustration on top, why / what / how on deep sage below. */
-function StorySlide() {
-  return (
-    <div className="flex min-h-580 flex-1 flex-col overflow-hidden rounded-5xl bg-surface-page-brand">
-      <Art
-        src={asset("/illustrations/intro-street.webp")}
-        alt="A parked car at dusk with a key, documents, a wrench and a receipt floating above it in an arc"
-        fadeTo="bg-surface-page-brand"
-        priority
-      />
-
-      <div className="flex flex-1 flex-col justify-between gap-20 p-24">
-        <div className="flex flex-col gap-8">
-          <Typography textStyle="label-md-semibold" color="static" className="opacity-80">
-            Why
-          </Typography>
-          <Typography textStyle="heading-xl" as="h1" color="static">
-            Owning a car isn't broken. It's just busy.
-          </Typography>
-        </div>
-
-        <div className="flex flex-col gap-16">
-          <div className="flex flex-col gap-4">
-            <Typography textStyle="label-md-semibold" color="static" className="opacity-80">
-              What
-            </Typography>
-            <Typography textStyle="body-md-regular" color="static">
-              Your ACKO Drive concierge: one place for everything your car needs, whenever you need it.
-            </Typography>
-          </div>
-          <div className="flex flex-col gap-4 border-t border-surface-static-white/15 pt-16">
-            <Typography textStyle="label-md-semibold" color="static" className="opacity-80">
-              How
-            </Typography>
-            <Typography textStyle="body-md-regular" color="static">
-              Tell us once. We deal with the dealers, garages, banks and paperwork, and keep you updated.
-            </Typography>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Slides 2 to 5: one customer theme each. */
-function ThemeSlide({ slide }: { slide: Slide }) {
+/** White card shared by every slide: optional art, eyebrow, heading, then the slide's own content. */
+function Frame({ eyebrow, heading, art, children }: { eyebrow: string; heading: ReactNode; art?: { src: string; alt: string }; children: ReactNode }) {
   return (
     <Card
       variant="primary"
-      /* @acko/css sets overflow: visible on .acko-card (unlayered), which beats the utility
-         and lets the image square off the rounded corners. Clip inline. */
-      style={{ overflow: "hidden" }}
-      className="flex min-h-580 flex-1 flex-col"
+      /* @acko/css sets overflow: visible on .acko-card (unlayered), which beats the utility. Clip inline. */
+      style={{ overflow: "hidden", backgroundColor: "var(--surfaceCardDefault)" }}
+      className="flex flex-1 flex-col border border-border-default-soft"
     >
-      <Art src={slide.image} alt={slide.imageAlt} fadeTo="bg-surface-card-default" />
-
-      <div className="flex flex-1 flex-col gap-12 p-24">
-        <Typography textStyle="label-md-semibold" color="brand">
-          {slide.theme}
-        </Typography>
-        <Typography textStyle="heading-xl" as="h2">
-          {slide.heading}
-        </Typography>
-
-        {slide.user && slide.reply && (
-          <div className="flex flex-col gap-8">
-            <Bubble from="customer">{slide.user}</Bubble>
-            <Bubble from="concierge">{slide.reply}</Bubble>
-          </div>
-        )}
-
-        {slide.lifecycle && (
-          <ul className="flex flex-col gap-8">
-            {slide.lifecycle.map((row) => (
-              <li key={row.label} className="flex items-center gap-12 rounded-3xl bg-brand-surface-subtle px-16 py-12">
-                <span className="text-brand-label-default">
-                  <Icon icon={row.icon} size={24} />
-                </span>
-                <Typography textStyle="body-md-medium">{row.label}</Typography>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {slide.cta && (
-          <div className="mt-auto flex pt-8">
-            <Button variant="secondary" size="md" iconRight={<ArrowRight aria-hidden="true" />}>
-              {slide.cta}
-            </Button>
-          </div>
-        )}
+      {art && <Art {...art} />}
+      <div className={`flex flex-1 flex-col gap-20 px-24 pb-24 ${art ? "pt-0" : "pt-24"}`}>
+        <div className="flex flex-col gap-8">
+          <Typography textStyle="label-md-semibold" color="secondary">
+            {eyebrow}
+          </Typography>
+          <Typography textStyle="heading-xl" as="h2" className="text-balance">
+            {heading}
+          </Typography>
+        </div>
+        {children}
       </div>
     </Card>
+  );
+}
+
+/** One use case: illustration, what the customer is doing, their words, and the concierge's answer. */
+function UseCaseSlide({ useCase }: { useCase: UseCase }) {
+  return (
+    <Frame eyebrow={useCase.topic} heading={useCase.heading} art={{ src: asset(useCase.image), alt: useCase.imageAlt }}>
+      <div className="flex flex-col gap-8">
+        <Bubble from="customer">{useCase.user}</Bubble>
+        <Bubble from="concierge">{useCase.reply}</Bubble>
+      </div>
+    </Frame>
   );
 }

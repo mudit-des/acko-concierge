@@ -15,6 +15,9 @@ export const CONCIERGE_NAME = "Your concierge"; // swap for the mascot's name on
 export const BOOKING_AMOUNT = 10000;
 export const DELIVERY_DATE = "12 Dec";
 export const PAPERWORK_DEADLINE = "tomorrow, 6 pm";
+export const CAR_PRICE = 1373780; // placeholder
+export const BALANCE = CAR_PRICE - BOOKING_AMOUNT;
+export const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 /** After the documents are verified: reassure the customer that the dealer search has started. */
 export const DEALER_MESSAGE = `That's the paperwork done. Now we're finding a dealer who can match your ${CAR.name} ${CAR.model}. They usually take a few hours to confirm stock, and we'll update you here as soon as we hear back.`;
@@ -59,7 +62,7 @@ export interface BookingStep {
   statusBusy: boolean;
   /** Thread messages. Step 0 is the hero card at the top of the page, so it has none here. */
   messages: string[];
-  card?: "car" | "verify" | "searching";
+  card?: "otp" | "assigned" | "verify" | "searching";
   /** What the customer says first (their bubble), before the concierge replies. */
   customerSays?: string;
   /** A plain next action (no choice): the sticky primary button opens this page. */
@@ -113,17 +116,38 @@ export const STEPS: BookingStep[] = [
     card: "searching",
   },
   {
-    id: "dealer-assigned",
-    path: `${BASE}/dealer-assigned`,
-    title: "Dealer assigned",
-    summary: "A partner dealer has your exact variant and colour reserved.",
-    status: "Dealer assigned",
-    statusBusy: false,
+    id: "accepted",
+    path: `${BASE}/accepted`,
+    title: "Found a match",
+    summary: "A car is reserved. The customer shares a one-time code when the dealer calls.",
+    status: "Waiting for your code",
+    statusBusy: true,
     time: "Tomorrow, 11:20 am",
+    stage: 1,
+    mood: "asking",
+    messages: [
+      `Found a match! I've reserved a fresh ${CAR.name} for you. Share the one-time code when our partner calls.`,
+      "I'll put your car's details on the card once the code is verified.",
+    ],
+    card: "otp",
+    action: { label: "After the call (demo)", to: `${BASE}/confirmed` },
+  },
+  {
+    id: "confirmed",
+    path: `${BASE}/confirmed`,
+    title: "Car assigned",
+    summary: "The code checked out. Engine and chassis numbers are on the card, and the balance is shown.",
+    status: "Car assigned to you",
+    statusBusy: false,
+    time: "Tomorrow, 11:32 am",
     stage: 2,
     mood: "happy",
-    messages: ["A partner dealer is assigned. Your exact variant and colour are reserved in your name.", `Delivery is on track for ${DELIVERY_DATE}.`],
-    card: "car",
+    messages: [
+      `Your code checked out. This ${CAR.name} is assigned to you.`,
+      `Engine and chassis are on the card. Next up: pay the remaining ${inr(BALANCE)}. Finance through me, or arrange it yourself.`,
+    ],
+    card: "assigned",
+    action: { label: "Show me my payment options", to: `${BASE}/finance` },
   },
   {
     id: "finance",
@@ -191,16 +215,31 @@ export const STEPS: BookingStep[] = [
   },
 ];
 
+/**
+ * The update a "Next steps" row points to: the first update of that stage. Documents received still
+ * belongs to the paperwork row, so the dealer row starts at the dealer search.
+ */
+export function stageTarget(stage: number): number {
+  if (stage === 0) return 1;
+  return Math.max(1, STEPS.findIndex((s) => s.stage === stage && s.id !== "documents-received"));
+}
+
 /** Pages outside the numbered states. */
 export const DOCUMENTS_PATH = `${BASE}/documents`;
 export const START_PATH = `${BASE}/received`;
 
-export const CAR_CARD: { label: string; value: string }[] = [
-  { label: "Variant", value: "SX" },
-  { label: "Colour", value: "Dark green" },
-  { label: "Reserved", value: "In your name" },
-  { label: "Delivery", value: `By ${DELIVERY_DATE}` },
+/** Rows on the assigned-car card (placeholder numbers). */
+export const CAR_NUMBERS: { label: string; value: string }[] = [
+  { label: "Engine no.", value: "G4LAHM123456" },
+  { label: "Chassis no.", value: "MALBM1234ABC567890" },
 ];
+export const CAR_PRICING: { label: string; value: string; strong?: boolean }[] = [
+  { label: "ACKO Drive price", value: inr(CAR_PRICE) },
+  { label: "Booking amount paid", value: `− ${inr(BOOKING_AMOUNT)}` },
+  { label: "Amount to pay", value: inr(BALANCE), strong: true },
+];
+export const OTP_TITLE = "Confirm with a one-time code";
+export const OTP_BODY = "Our partner will call you shortly. Share the OTP with them. That's how Hyundai assigns this exact car to you.";
 
 /** Shown on the verification card in the chat, ticked off one by one. */
 export const VERIFY_LINES = ["Reading your PAN", "Matching your Aadhaar details", "Checking your name and address"];

@@ -18,12 +18,15 @@ export function ChatHeader({
   talking = false,
   car,
   onBack,
+  onSelectStage,
 }: {
   mood: MascotMood;
   talking?: boolean;
   /** Pinned mini card once the car is booked. `busy` makes the dot orange (in progress) instead of green (done). */
   car?: { name: string; image: string; status: string; busy: boolean; stage: number; allDone: boolean };
   onBack: () => void;
+  /** Called with a step index when a finished or current step in the open panel is tapped. */
+  onSelectStage?: (stage: number) => void;
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [requested, setRequested] = useState(false);
@@ -139,7 +142,17 @@ export function ChatHeader({
                       Here's what happens after this
                     </Typography>
                   </div>
-                  <StepsTimeline stage={car.stage} allDone={car.allDone} />
+                  <StepsTimeline
+                    stage={car.stage}
+                    allDone={car.allDone}
+                    onSelect={
+                      onSelectStage &&
+                      ((i) => {
+                        setStepsOpen(false);
+                        onSelectStage(i);
+                      })
+                    }
+                  />
                 </div>
               )}
             </div>

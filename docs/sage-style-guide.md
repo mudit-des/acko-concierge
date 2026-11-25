@@ -131,7 +131,8 @@ A sage hatchback with a face (`src/components/Mascot.tsx`, `mascot.css`). Inputs
 | `/buy-car/documents` | Upload Aadhaar and PAN: quick check, document rows, privacy line |
 | `/buy-car/documents/received` | Documents tick through verification. Button: What's next? |
 | `/buy-car/processing` | Finding a dealer: reassurance, searching card, heads-up |
-| `/buy-car/dealer-assigned` | Dealer assigned, car details |
+| `/buy-car/accepted` | Found a match: one-time code card, car card |
+| `/buy-car/confirmed` | Car assigned: engine and chassis, price balance |
 | `/buy-car/finance` | Choose how to pay. `?choice=us` or `?choice=bank` shows the reply |
 | `/buy-car/insurance` | Insurance and registration handled |
 | `/buy-car/ready` | Pre-delivery check passed, slot confirmed |

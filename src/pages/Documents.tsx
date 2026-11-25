@@ -160,7 +160,7 @@ export default function Documents() {
           <Typography textStyle="body-md-regular" color="secondary" align="center" aria-live="polite">
             {ready ? "Both documents added." : `${addedCount} of ${DOCUMENT_ROWS.length} added`}
           </Typography>
-          <Button size="lg" fullWidth disabled={!ready} onClick={submit}>
+          <Button size="md" fullWidth disabled={!ready} onClick={submit}>
             Here are my documents
           </Button>
         </div>

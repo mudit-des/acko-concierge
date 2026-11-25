@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Badge } from "@acko/badge";
 import { Button } from "@acko/button";
-import { Card } from "@acko/card";
-import { Tick } from "@acko/icons";
+import { ArrowDown, CustomerService, Tick } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { AlertIcon } from "../components/AlertIcon";
 import { Bubble } from "../components/Bubble";
+import { CarCard } from "../components/CarCard";
 import { ChatHeader } from "../components/ChatHeader";
 import { SearchingCard } from "../components/SearchingCard";
 import { StepsTimeline } from "../components/StepsTimeline";
 import { VerifyCard } from "../components/VerifyCard";
 import {
   BOOKING_AMOUNT,
+  OTP_BODY,
+  OTP_TITLE,
+  inr,
   CAR,
-  CAR_CARD,
   DEALER_CLOSING,
   DEALER_SEARCH_LINES,
   DELIVERY_DATE,
@@ -21,6 +23,7 @@ import {
   HEADS_UP_TITLE,
   PAPERWORK_DEADLINE,
   START_PATH,
+  stageTarget,
   STEPS,
   VERIFIED_LINE,
   VERIFY_LINES,
@@ -30,7 +33,6 @@ import { navigate } from "../router";
 
 const LAST = STEPS.length - 1;
 const delay = (ms: number): CSSProperties => ({ animationDelay: `${ms}ms` });
-const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 /**
  * One page per state of the car purchase, chosen by the URL (see STEPS in data/booking.ts).
@@ -46,6 +48,33 @@ export default function BuyCar({ step, search }: { step: number; search: string 
   const [verifyDone, setVerifyDone] = useState(step !== 1);
   const [talking, setTalking] = useState(false);
   const groupRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [awayFromLatest, setAwayFromLatest] = useState(false);
+
+  // Show "Back to latest" once the reader has scrolled well above the newest update.
+  useEffect(() => {
+    if (step === 0) return;
+    const onScroll = () => {
+      const el = groupRefs.current[step];
+      setAwayFromLatest(Boolean(el) && el!.getBoundingClientRect().top > window.innerHeight);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [step]);
+
+  const flash = (el: HTMLElement | null | undefined) => {
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+    window.setTimeout(() => el.classList.remove("flash"), 1400);
+  };
+
+  // A tapped step in the timeline jumps to the first update of that stage that exists on this page.
+  const goToStage = (stage: number) => {
+    flash(groupRefs.current[Math.min(stageTarget(stage), step)]);
+  };
 
   const verifying = step === 1 && !verifyDone;
   const mood = verifying ? "thinking" : current.mood;
@@ -82,6 +111,7 @@ export default function BuyCar({ step, search }: { step: number; search: string 
           mood={mood}
           talking={talking}
           car={step > 0 ? { name: CAR.name, image: CAR.image, status, busy, stage: stageNow, allDone: delivered } : undefined}
+          onSelectStage={step > 0 ? goToStage : undefined}
           onBack={() => (window.history.length > 1 ? window.history.back() : navigate(step > 0 ? STEPS[step - 1].path : "/home"))}
         />
 
@@ -164,7 +194,7 @@ export default function BuyCar({ step, search }: { step: number; search: string 
                   ref={(el) => {
                     groupRefs.current[i] = el;
                   }}
-                  className="flex scroll-mt-88 flex-col gap-8"
+                  className="flex scroll-mt-160 flex-col gap-8"
                 >
                   <Typography textStyle="helper-sm-regular" color="secondary">
                     {s.time}
@@ -198,18 +228,23 @@ export default function BuyCar({ step, search }: { step: number; search: string 
                       </div>
                     </>
                   )}
-                  {s.card === "car" && (
-                    <Card variant="secondary" className="grid grid-cols-2 gap-x-16 gap-y-12 p-16">
-                      {CAR_CARD.map((row) => (
-                        <div key={row.label} className="flex flex-col">
-                          <Typography textStyle="helper-sm-regular" color="secondary">
-                            {row.label}
+                  {s.card === "otp" && (
+                    <>
+                      <div className="flex w-full items-start gap-12 rounded-3xl border border-border-default-soft bg-surface-card-default px-16 py-12">
+                        <span className="grid size-40 shrink-0 place-items-center rounded-full bg-brand-surface-subtle [&_svg]:size-20">
+                          <CustomerService aria-hidden="true" />
+                        </span>
+                        <div className="flex flex-col gap-4">
+                          <Typography textStyle="body-md-semibold">{OTP_TITLE}</Typography>
+                          <Typography textStyle="body-md-regular" color="secondary">
+                            {OTP_BODY}
                           </Typography>
-                          <Typography textStyle="body-sm-medium">{row.value}</Typography>
                         </div>
-                      ))}
-                    </Card>
+                      </div>
+                      <CarCard />
+                    </>
                   )}
+                  {s.card === "assigned" && <CarCard details />}
                   {opt && (
                     <>
                       <Bubble from="customer" animate={isCurrent}>
@@ -235,9 +270,16 @@ export default function BuyCar({ step, search }: { step: number; search: string 
         style={{ zIndex: "var(--zSticky)", background: "linear-gradient(180deg, transparent 0%, var(--surfacePagePrimary) 40%)" }}
       >
         <div className="pointer-events-auto mx-auto flex w-full max-w-480 flex-col gap-8 px-16 pb-[max(16px,env(safe-area-inset-bottom))]">
+          {awayFromLatest && (
+            <div className="flex justify-center">
+              <Button variant="secondary" size="sm" iconLeft={<ArrowDown aria-hidden="true" />} onClick={() => flash(groupRefs.current[step])}>
+                Back to latest
+              </Button>
+            </div>
+          )}
           {gated && current.gate ? (
             <>
-              <Button size="lg" fullWidth onClick={() => navigate(`${current.path}?choice=${current.gate!.primary.value}`)}>
+              <Button size="md" fullWidth onClick={() => navigate(`${current.path}?choice=${current.gate!.primary.value}`)}>
                 {current.gate.primary.label}
               </Button>
               {current.gate.secondary && (
@@ -251,7 +293,7 @@ export default function BuyCar({ step, search }: { step: number; search: string 
               I'm checking your documents. This takes a few seconds.
             </Typography>
           ) : current.action ? (
-            <Button size="lg" fullWidth onClick={() => navigate(current.action!.to)}>
+            <Button size="md" fullWidth onClick={() => navigate(current.action!.to)}>
               {current.action.label}
             </Button>
           ) : delivered ? (

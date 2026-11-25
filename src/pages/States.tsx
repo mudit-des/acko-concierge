@@ -100,6 +100,7 @@ export default function States() {
         </Section>
 
         <Section title="Other">
+          <Item row={{ path: "/welcome", title: "Welcome", summary: "The app-opening animation: scattered pills gather into the concierge." }} />
           <Item row={{ path: "/home", title: "Home", summary: "The landing page: carousel and services." }} />
           <Item row={{ path: "/style-guide", title: "Style guide", summary: "The temporary sage style guide." }} />
         </Section>
