@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import BuyCar from "./pages/BuyCar";
 import Documents from "./pages/Documents";
 import Home from "./pages/Home";
+import Story from "./pages/Story";
 import Onboarding from "./pages/Onboarding";
 import States from "./pages/States";
 import StyleGuide from "./pages/StyleGuide";
@@ -11,7 +12,8 @@ import { navigate, useLocation } from "./router";
 /*
  * Routes
  *   /welcome                   app-opening animation (the root address opens it)
- *   /home                      landing page
+ *   /story                     the four use-case cards, full screen
+ *   /home                      the services (bento)
  *   /buy-car                   redirects to /buy-car/received
  *   /buy-car/received ...      one page per state of the car purchase (see STEPS in data/booking.ts)
  *   /buy-car/documents         upload the documents
@@ -33,7 +35,7 @@ export default function App() {
         : path.startsWith("/booking/")
           ? path.replace("/booking/", "/buy-car/")
           : null;
-  const known = path === "/welcome" || path === "/home" || path === "/states" || path === "/style-guide" || path === DOCUMENTS_PATH || stepIndex >= 0;
+  const known = path === "/welcome" || path === "/story" || path === "/home" || path === "/states" || path === "/style-guide" || path === DOCUMENTS_PATH || stepIndex >= 0;
 
   useEffect(() => {
     if (redirect) navigate(redirect, { replace: true });
@@ -44,6 +46,7 @@ export default function App() {
   if (stepIndex >= 0) return <BuyCar key={path} step={stepIndex} search={search} />;
   if (path === DOCUMENTS_PATH) return <Documents />;
   if (path === "/welcome") return <Onboarding />;
+  if (path === "/story") return <Story />;
   if (path === "/states") return <States />;
   if (path === "/style-guide") return <StyleGuide />;
   return <Home />;

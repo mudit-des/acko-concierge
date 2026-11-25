@@ -153,7 +153,7 @@ export default function Onboarding() {
           </Typography>
 
           <div style={{ marginTop: 24, opacity: gathered ? 1 : 0, transform: gathered ? "none" : "translateY(8px)", transition: `all 1.2s ${EASE} ${gathered ? "2.2s" : "0s"}` }}>
-            <Button size="md" fullWidth disabled={!gathered} onClick={() => navigate("/home")}>
+            <Button size="md" fullWidth disabled={!gathered} onClick={() => navigate("/story")}>
               Get started
             </Button>
           </div>

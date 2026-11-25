@@ -123,6 +123,11 @@ body {
   html { scroll-behavior: auto; }
 }
 
+/* Story screen: lines on the active card rise in, one after another */
+.story-in { opacity: 1; }
+[data-active="true"] .story-in { animation: reveal-up var(--motionRevealDuration) var(--motionEaseOut) both; animation-delay: var(--d, 0ms); }
+@media (prefers-reduced-motion: reduce) { .story-in { animation: none !important; } }
+
 /* App-opening screen: pills bob gently, the concierge rings breathe */
 @keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
