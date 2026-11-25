@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@acko/button";
-import { Refresh } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { Mascot } from "../components/Mascot";
 import { PILLS } from "../data/story";
 import { CONCIERGE_NAME } from "../data/booking";
-import { navigate } from "../router";
+import { withBase } from "../router";
+import Story from "./Story";
 
 /*
  * App-opening screen. Pills for everything a car owner deals with float about, then gather into
  * the concierge. The motion follows the "vision" scene of the Calm Commerce artifact: pills
  * shrink and blur toward the centre with a stagger, a soft orb grows in, and the title swaps.
- * With reduced motion it opens already gathered.
+ * With reduced motion it opens already gathered. There are no buttons: after the title settles, the a few
+ * seconds after the title settles, the the story cards slide in from the right and this screen drifts away.
  */
 
 const EASE = "cubic-bezier(.22,.8,.2,1)";
+/** How long the finished screen is held before the cards slide up. */
+const HOLD_MS = 4200;
+/** How long the welcome items take to lift away. */
+const FADE_MS = 500;
 /** Big, tight, centred. Inline because component CSS beats utilities. */
 const TITLE = { fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em", textAlign: "center" } as const;
 
@@ -34,35 +38,43 @@ const TONES = ["#334155", "#94a3b8", "#6b9a85"];
 export default function Onboarding() {
   const reduce = useRef(window.matchMedia("(prefers-reduced-motion: reduce)").matches).current;
   const [gathered, setGathered] = useState(reduce);
-  const touched = useRef(false);
 
-  // Start gathering shortly after the screen opens, unless the person replayed it by hand.
+  // Start gathering shortly after the screen opens.
   useEffect(() => {
     if (reduce) return;
-    const t = window.setTimeout(() => {
-      if (!touched.current) setGathered(true);
-    }, 2200);
+    const t = window.setTimeout(() => setGathered(true), 2200);
     return () => window.clearTimeout(t);
   }, [reduce]);
 
-  const replay = () => {
-    touched.current = true;
-    setGathered(false);
-    window.setTimeout(() => setGathered(true), 1800);
-  };
+  // Hold on the finished screen, then let everything lift away (shorter hold if reduced motion).
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => {
+    if (!gathered) return;
+    const t = window.setTimeout(() => setLeaving(true), reduce ? 1500 : HOLD_MS);
+    return () => window.clearTimeout(t);
+  }, [reduce, gathered]);
+
+  // When the welcome items have faded out, bring the story screen in and update the address (no reload).
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    if (!leaving) return;
+    const t = window.setTimeout(() => {
+      setEntered(true);
+      window.history.replaceState(null, "", withBase("/story"));
+    }, reduce ? 0 : FADE_MS + 100);
+    return () => window.clearTimeout(t);
+  }, [leaving, reduce]);
 
   return (
     <div className="onb min-h-svh bg-surface-page-secondary">
-      <main className="mx-auto flex h-svh w-full max-w-480 flex-col overflow-hidden bg-surface-page-primary px-16 pt-[max(8px,env(safe-area-inset-top))] pb-[max(16px,env(safe-area-inset-bottom))]">
-        {/* Replay sits top right and only appears once the animation has finished */}
-        <header className="flex h-44 items-center justify-end">
-          <div style={{ opacity: gathered ? 1 : 0, pointerEvents: gathered ? "auto" : "none", transition: `opacity 0.8s ease ${gathered ? "2.4s" : "0s"}` }}>
-            <Button variant="ghost" size="sm" iconLeft={<Refresh aria-hidden="true" />} onClick={replay} tabIndex={gathered ? 0 : -1}>
-              Replay
-            </Button>
-          </div>
-        </header>
-
+      <main
+        className="mx-auto flex h-svh w-full max-w-480 flex-col overflow-hidden bg-surface-page-primary px-16 pt-[max(16px,env(safe-area-inset-top))] pb-[max(32px,env(safe-area-inset-bottom))]"
+      >
+        {/* Everything on the welcome screen lifts away together before the cards arrive. */}
+        <div
+          className="flex min-h-0 flex-1 flex-col"
+          style={{ opacity: leaving ? 0 : 1, transform: leaving ? "translateY(-16px) scale(0.98)" : "none", transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ${EASE}` }}
+        >
         {/* Field: pills float here, then gather into the concierge at the centre */}
         <div className="relative mb-16 min-h-0 flex-1" aria-label={gathered ? "Everything gathered into one place" : "Scattered tasks of owning a car"}>
           {PILLS.map((p, i) => {
@@ -153,13 +165,16 @@ export default function Onboarding() {
             One place for everything your car needs.
           </Typography>
 
-          <div style={{ marginTop: 24, opacity: gathered ? 1 : 0, transform: gathered ? "none" : "translateY(8px)", transition: `all 1.2s ${EASE} ${gathered ? "2.2s" : "0s"}` }}>
-            <Button size="md" fullWidth disabled={!gathered} onClick={() => navigate("/story")}>
-              Get started
-            </Button>
-          </div>
+        </div>
         </div>
       </main>
+
+      {/* Once the welcome items are gone, the story screen builds itself in on the same background. */}
+      {entered && (
+        <div className="fixed inset-0 overflow-hidden" style={{ zIndex: "var(--zModal, 50)" }}>
+          <Story entering />
+        </div>
+      )}
     </div>
   );
 }

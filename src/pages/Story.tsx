@@ -55,7 +55,7 @@ function StoryCard({ useCase }: { useCase: UseCase }) {
   );
 }
 
-export default function Story() {
+export default function Story({ entering = false }: { entering?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
@@ -81,9 +81,9 @@ export default function Story() {
   }, []);
 
   return (
-    <div className="min-h-svh bg-surface-page-secondary">
+    <div className={`min-h-svh bg-surface-page-secondary ${entering ? "story-entering" : ""}`}>
       <main className="mx-auto flex h-svh w-full max-w-480 flex-col bg-surface-page-primary pt-[max(12px,env(safe-area-inset-top))] pb-[max(16px,env(safe-area-inset-bottom))]">
-        <section className="min-h-0 flex-1" aria-roledescription="carousel" aria-label="What your concierge does">
+        <section className="se-card min-h-0 flex-1" aria-roledescription="carousel" aria-label="What your concierge does">
           <div
             ref={trackRef}
             className="no-scrollbar flex h-full snap-x snap-mandatory scroll-pl-12 gap-8 overflow-x-auto overscroll-x-contain px-12 pt-4 pb-24"
@@ -109,7 +109,7 @@ export default function Story() {
         </section>
 
         {/* Tiny dots, left aligned, then the one action */}
-        <div className="-mt-12 flex justify-start px-20">
+        <div className="se-foot -mt-12 flex justify-start px-20">
           {USE_CASES.map((u, i) => (
             <button
               key={u.id}
@@ -123,7 +123,7 @@ export default function Story() {
             </button>
           ))}
         </div>
-        <div className="px-16 pt-4">
+        <div className="se-foot px-16 pt-4">
           <Button size="md" fullWidth onClick={() => navigate("/home")}>
             Learn more
           </Button>

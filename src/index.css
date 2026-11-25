@@ -128,6 +128,14 @@ body {
 [data-active="true"] .story-in { animation: reveal-up var(--motionRevealDuration) var(--motionEaseOut) both; animation-delay: var(--d, 0ms); }
 @media (prefers-reduced-motion: reduce) { .story-in { animation: none !important; } }
 
+/* Story screen building itself in after the welcome items lift away: card rises, then dots and button */
+@keyframes se-card { from { opacity: 0; transform: translateY(28px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes se-foot { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.story-entering .se-card { animation: se-card 650ms cubic-bezier(.22, .8, .2, 1) both; }
+.story-entering .se-foot { animation: se-foot 450ms ease 450ms both; }
+.story-entering [data-active="true"] .story-in { animation-delay: calc(var(--d, 0ms) + 350ms); }
+@media (prefers-reduced-motion: reduce) { .story-entering .se-card, .story-entering .se-foot { animation: none !important; } }
+
 /* App-opening screen: pills bob gently, the concierge rings breathe */
 @keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
