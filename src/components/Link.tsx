@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, MouseEvent } from "react";
-import { navigate } from "../router";
+import { navigate, withBase } from "../router";
 
 interface LinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> {
   to: string;
@@ -14,7 +14,7 @@ export function Link({ to, onClick, children, ...rest }: LinkProps) {
     navigate(to);
   };
   return (
-    <a href={to} onClick={handle} {...rest}>
+    <a href={withBase(to)} onClick={handle} {...rest}>
       {children}
     </a>
   );

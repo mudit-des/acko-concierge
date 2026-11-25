@@ -4,6 +4,7 @@ import { ArrowRight } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { SERVICES, type ServiceId } from "../data/services";
 import { Icon } from "./Icon";
+import { asset } from "../asset";
 import { navigate } from "../router";
 
 /*
@@ -174,14 +175,14 @@ export function ServiceBento() {
       </div>
 
       <div ref={gridRef} className="mt-24 grid auto-rows-auto grid-cols-2 gap-12">
-        <Tile {...common} index={0} id="repair" tone="deep" layout="overlay" image="/illustrations/tile-repair.webp" focus="50% 12%" className="col-span-2" />
-        <Tile {...common} index={1} id="buy" tone="white" layout="stack" image="/illustrations/tile-buy.webp" to="/buy-car/received" />
-        <Tile {...common} index={2} id="sell" tone="tint" layout="stack" image="/illustrations/tile-sell.webp" />
-        <Tile {...common} index={3} id="maintain" tone="tint" layout="stack" image="/illustrations/tile-maintain.webp" focus="50% 38%" className="row-span-2" />
-        <Tile {...common} index={4} id="insurance" tone="white" layout="stack" image="/illustrations/tile-insure.webp" />
-        <Tile {...common} index={5} id="paperwork" tone="white" layout="stack" image="/illustrations/tile-paperwork.webp" />
-        <Tile {...common} index={6} id="finance" tone="white" layout="stack" image="/illustrations/tile-finance.webp" />
-        <Tile {...common} index={7} id="roadside" tone="deep" layout="overlay" image="/illustrations/tile-roadside.webp" fitWidth />
+        <Tile {...common} index={0} id="repair" tone="deep" layout="overlay" image={asset("/illustrations/tile-repair.webp")} focus="50% 12%" className="col-span-2" />
+        <Tile {...common} index={1} id="buy" tone="white" layout="stack" image={asset("/illustrations/tile-buy.webp")} to="/buy-car/received" />
+        <Tile {...common} index={2} id="sell" tone="tint" layout="stack" image={asset("/illustrations/tile-sell.webp")} />
+        <Tile {...common} index={3} id="maintain" tone="tint" layout="stack" image={asset("/illustrations/tile-maintain.webp")} focus="50% 38%" className="row-span-2" />
+        <Tile {...common} index={4} id="insurance" tone="white" layout="stack" image={asset("/illustrations/tile-insure.webp")} />
+        <Tile {...common} index={5} id="paperwork" tone="white" layout="stack" image={asset("/illustrations/tile-paperwork.webp")} />
+        <Tile {...common} index={6} id="finance" tone="white" layout="stack" image={asset("/illustrations/tile-finance.webp")} />
+        <Tile {...common} index={7} id="roadside" tone="deep" layout="overlay" image={asset("/illustrations/tile-roadside.webp")} fitWidth />
       </div>
     </section>
   );

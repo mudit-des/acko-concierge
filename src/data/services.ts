@@ -1,3 +1,4 @@
+import { asset } from "../asset";
 import { Bank, CalendarDays, Coverage, PolicyDocument, PriceTag, SellCarBike1, Tools, Towing } from "@acko/icons";
 import type { IconType } from "../components/Icon";
 
@@ -55,7 +56,7 @@ export const SLIDES: Slide[] = [
     heading: "Stop chasing. We'll do it.",
     user: "I chase the dealer, the bank and the garage, and hear about delays late.",
     reply: "We do the chasing. You get one thread with every update.",
-    image: "/illustrations/scene-chasing.webp",
+    image: asset("/illustrations/scene-chasing.webp"),
     imageAlt: "A concierge with a clipboard beside a car. One glowing thread links a showroom, a bank and a garage, with a ticked document travelling along it.",
   },
   {
@@ -65,7 +66,7 @@ export const SLIDES: Slide[] = [
     user: "A free service suddenly cost ₹10k. Was any of it needed?",
     reply: "We explain every line before you approve, and compare quotes for you.",
     cta: "Check what your car is worth",
-    image: "/illustrations/scene-fair.webp",
+    image: asset("/illustrations/scene-fair.webp"),
     imageAlt: "A floating checklist with ticks and a magnifying glass, a price tag and a level scale beside a garage, above a parked car.",
   },
   {
@@ -74,7 +75,7 @@ export const SLIDES: Slide[] = [
     heading: "Nothing sneaks up on you.",
     user: "A warning light just ruined my weekend.",
     reply: "We track what's due. For anything else, message us and we step in.",
-    image: "/illustrations/scene-peace.webp",
+    image: asset("/illustrations/scene-peace.webp"),
     imageAlt: "A car at dusk with a floating calendar of ticked reminders, a switched-off warning light and a chat bubble with a tick.",
   },
   {
@@ -87,7 +88,7 @@ export const SLIDES: Slide[] = [
       { label: "Repair and service", icon: Tools },
     ],
     cta: "Check what your car is worth",
-    image: "/illustrations/scene-lifecycle.webp",
+    image: asset("/illustrations/scene-lifecycle.webp"),
     imageAlt: "A winding road past a showroom, the car under a shield and a garage, with a newer car waiting further along.",
   },
 ];

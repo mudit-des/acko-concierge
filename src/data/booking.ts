@@ -1,3 +1,4 @@
+import { asset } from "../asset";
 import { Car, ClipboardCheck, Coverage, Delivery, Money } from "@acko/icons";
 import type { MascotMood } from "../components/Mascot";
 import type { IconType } from "../components/Icon";
@@ -9,7 +10,7 @@ import type { IconType } from "../components/Icon";
  * OEM or dealer image licence. Final copy needs the real flow, partner dealers, lenders and the
  * insurance start rules.
  */
-export const CAR = { name: "Hyundai Creta", model: "SX", image: "/illustrations/car-creta.webp", imageRatio: { width: 930, height: 620 } };
+export const CAR = { name: "Hyundai Creta", model: "SX", image: asset("/illustrations/car-creta.webp"), imageRatio: { width: 930, height: 620 } };
 export const CONCIERGE_NAME = "Your concierge"; // swap for the mascot's name once chosen
 export const BOOKING_AMOUNT = 10000;
 export const DELIVERY_DATE = "12 Dec";

@@ -3,6 +3,7 @@ import { Button } from "@acko/button";
 import { Card } from "@acko/card";
 import { ArrowRight } from "@acko/icons";
 import { Typography } from "@acko/typography";
+import { asset } from "../asset";
 import { SLIDES, type Slide } from "../data/services";
 import { Bubble } from "./Bubble";
 import { Icon } from "./Icon";
@@ -164,7 +165,7 @@ function StorySlide() {
   return (
     <div className="flex min-h-580 flex-1 flex-col overflow-hidden rounded-5xl bg-surface-page-brand">
       <Art
-        src="/illustrations/intro-street.webp"
+        src={asset("/illustrations/intro-street.webp")}
         alt="A parked car at dusk with a key, documents, a wrench and a receipt floating above it in an arc"
         fadeTo="bg-surface-page-brand"
         priority

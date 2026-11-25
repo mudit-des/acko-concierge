@@ -1,6 +1,7 @@
 import { Button } from "@acko/button";
 import { CustomerService } from "@acko/icons";
 import { Typography } from "@acko/typography";
+import { asset } from "../asset";
 import { Link } from "./Link";
 
 /**
@@ -18,8 +19,8 @@ export function Header() {
           className="block h-28 w-168 shrink-0"
           style={{
             backgroundColor: "var(--textSecondary)",
-            WebkitMaskImage: "url(/brand/acko-drive-wide-black.svg)",
-            maskImage: "url(/brand/acko-drive-wide-black.svg)",
+            WebkitMaskImage: `url(${asset("/brand/acko-drive-wide-black.svg")})`,
+            maskImage: `url(${asset("/brand/acko-drive-wide-black.svg")})`,
             WebkitMaskRepeat: "no-repeat",
             maskRepeat: "no-repeat",
             WebkitMaskSize: "contain",
