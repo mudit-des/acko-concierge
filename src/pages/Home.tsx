@@ -1,7 +1,7 @@
 import { Typography } from "@acko/typography";
 import { CtaBar } from "../components/CtaBar";
 import { Header } from "../components/Header";
-import { ServiceBento } from "../components/ServiceBento";
+import { Services } from "../components/Services";
 import { StoryCarousel } from "../components/StoryCarousel";
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
       <main className="mx-auto min-h-svh w-full max-w-480 bg-surface-page-primary pb-[calc(112px+env(safe-area-inset-bottom))]">
         <Header />
         <StoryCarousel />
-        <ServiceBento />
+        <Services />
         <footer className="px-16 pt-40 text-center">
           <Typography textStyle="helper-sm-regular" color="secondary">
             ACKO Drive concierge · Draft concept

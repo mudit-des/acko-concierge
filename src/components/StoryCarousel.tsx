@@ -158,7 +158,7 @@ function Frame({ eyebrow, heading, art, children }: { eyebrow: string; heading: 
       className="flex flex-1 flex-col border border-border-default-soft"
     >
       {art && <Art {...art} />}
-      <div className={`flex flex-1 flex-col gap-20 px-24 pb-24 ${art ? "pt-0" : "pt-24"}`}>
+      <div className={`flex flex-1 flex-col gap-20 px-24 pb-24 ${art ? "pt-20" : "pt-24"}`}>
         <div className="flex flex-col gap-8">
           <Typography textStyle="label-md-semibold" color="secondary">
             {eyebrow}

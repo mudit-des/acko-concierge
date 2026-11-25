@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@acko/button";
+import { Refresh } from "@acko/icons";
 import { Typography } from "@acko/typography";
-import { asset } from "../asset";
 import { Mascot } from "../components/Mascot";
 import { PILLS } from "../data/story";
 import { CONCIERGE_NAME } from "../data/booking";
@@ -15,6 +15,8 @@ import { navigate } from "../router";
  */
 
 const EASE = "cubic-bezier(.22,.8,.2,1)";
+/** Big, tight, left aligned. Inline because component CSS beats utilities. */
+const TITLE = { fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.02em", textAlign: "left" } as const;
 
 /** Where each pill floats before it gathers: left %, top %, tilt in degrees, scale. */
 const SCATTER: [number, number, number, number][] = [
@@ -51,62 +53,18 @@ export default function Onboarding() {
 
   return (
     <div className="onb min-h-svh bg-surface-page-secondary">
-      <main className="mx-auto flex h-svh w-full max-w-480 flex-col overflow-hidden bg-surface-page-primary px-16 pt-[max(12px,env(safe-area-inset-top))] pb-[max(16px,env(safe-area-inset-bottom))]">
-        <header className="flex items-center justify-between">
-          <span
-            role="img"
-            aria-label="ACKO Drive"
-            className="block h-20 w-[88px] bg-text-primary"
-            style={{
-              WebkitMask: `url(${asset("/brand/acko-drive-wide-black.svg")}) left center / contain no-repeat`,
-              mask: `url(${asset("/brand/acko-drive-wide-black.svg")}) left center / contain no-repeat`,
-            }}
-          />
-          <Button variant="ghost" size="sm" onClick={() => navigate("/home")}>
-            Skip
-          </Button>
+      <main className="mx-auto flex h-svh w-full max-w-480 flex-col overflow-hidden bg-surface-page-primary px-16 pt-[max(8px,env(safe-area-inset-top))] pb-[max(16px,env(safe-area-inset-bottom))]">
+        {/* Replay sits top right and only appears once the animation has finished */}
+        <header className="flex h-44 items-center justify-end">
+          <div style={{ opacity: gathered ? 1 : 0, pointerEvents: gathered ? "auto" : "none", transition: `opacity 0.8s ease ${gathered ? "2.4s" : "0s"}` }}>
+            <Button variant="ghost" size="sm" iconLeft={<Refresh aria-hidden="true" />} onClick={replay} tabIndex={gathered ? 0 : -1}>
+              Replay
+            </Button>
+          </div>
         </header>
 
-        {/* The title swaps in place: the first line lifts away, the second settles in. */}
-        <div className="mt-24 grid">
-          <Typography
-            textStyle="heading-xl"
-            as="h1"
-            className="col-start-1 row-start-1 text-balance"
-            style={{
-              opacity: gathered ? 0 : 1,
-              transform: gathered ? "translateY(-10px)" : "none",
-              transition: `all 1s ${EASE}`,
-            }}
-          >
-            Car ownership is scattered.
-          </Typography>
-          <Typography
-            textStyle="heading-xl"
-            as="h1"
-            className="col-start-1 row-start-1 text-balance"
-            aria-hidden={!gathered}
-            style={{
-              opacity: gathered ? 1 : 0,
-              transform: gathered ? "none" : "translateY(10px)",
-              transition: `all 1s ${EASE} ${gathered ? ".9s" : "0s"}`,
-            }}
-          >
-            Your concierge brings it all together.
-          </Typography>
-        </div>
-
-        <Typography
-          textStyle="body-md-regular"
-          color="secondary"
-          className="mt-12"
-          style={{ opacity: gathered ? 1 : 0, transition: `opacity 1.2s ease ${gathered ? "1.6s" : "0s"}` }}
-        >
-          One place for everything your car needs.
-        </Typography>
-
         {/* Field: pills float here, then gather into the concierge at the centre */}
-        <div className="relative my-16 min-h-0 flex-1" aria-label={gathered ? "Everything gathered into one place" : "Scattered tasks of owning a car"}>
+        <div className="relative mb-16 min-h-0 flex-1" aria-label={gathered ? "Everything gathered into one place" : "Scattered tasks of owning a car"}>
           {PILLS.map((p, i) => {
             const [left, top, rot, scale] = SCATTER[i];
             const d = i * 70;
@@ -154,13 +112,49 @@ export default function Onboarding() {
           </div>
         </div>
 
-        <div style={{ opacity: gathered ? 1 : 0, transform: gathered ? "none" : "translateY(8px)", transition: `all 1.2s ${EASE} ${gathered ? "2.2s" : "0s"}` }}>
-          <Button size="md" fullWidth disabled={!gathered} onClick={() => navigate("/home")}>
-            Get started
-          </Button>
-          <div className="mt-4 flex justify-center">
-            <Button variant="ghost" size="sm" onClick={replay}>
-              Replay
+        {/* Bottom: the title swaps in place, left aligned and large, then the subline and the button */}
+        <div className="flex flex-col">
+          <div className="grid">
+            <Typography
+              textStyle="heading-xl"
+              as="h1"
+              className="col-start-1 row-start-1 self-end text-balance"
+              style={{
+                ...TITLE,
+                opacity: gathered ? 0 : 1,
+                transform: gathered ? "translateY(-10px)" : "none",
+                transition: `all 1s ${EASE}`,
+              }}
+            >
+              Car ownership is scattered.
+            </Typography>
+            <Typography
+              textStyle="heading-xl"
+              as="h1"
+              className="col-start-1 row-start-1 self-end text-balance"
+              aria-hidden={!gathered}
+              style={{
+                ...TITLE,
+                opacity: gathered ? 1 : 0,
+                transform: gathered ? "none" : "translateY(10px)",
+                transition: `all 1s ${EASE} ${gathered ? ".9s" : "0s"}`,
+              }}
+            >
+              Your concierge brings it all together.
+            </Typography>
+          </div>
+
+          <Typography
+            textStyle="body-md-regular"
+            color="secondary"
+            style={{ marginTop: 14, opacity: gathered ? 1 : 0, transition: `opacity 1.2s ease ${gathered ? "1.6s" : "0s"}` }}
+          >
+            One place for everything your car needs.
+          </Typography>
+
+          <div style={{ marginTop: 24, opacity: gathered ? 1 : 0, transform: gathered ? "none" : "translateY(8px)", transition: `all 1.2s ${EASE} ${gathered ? "2.2s" : "0s"}` }}>
+            <Button size="md" fullWidth disabled={!gathered} onClick={() => navigate("/home")}>
+              Get started
             </Button>
           </div>
         </div>
