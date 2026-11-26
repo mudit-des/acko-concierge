@@ -57,9 +57,8 @@ const INTRO: Omit<Msg, "id">[] = [
   {
     from: "bot",
     kind: "text",
-    text: "Hi, I'm Otto, your concierge. I'm here to help you out.",
+    text: "Hi, I'm Otto, your concierge. I'm here to help you out. What do you need right now?",
   },
-  { from: "bot", kind: "text", text: "What do you need right now?" },
   { from: "bot", kind: "quick" },
 ];
 let thread: Msg[] = [];
