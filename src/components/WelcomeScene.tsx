@@ -50,10 +50,20 @@ export function WelcomeArt({ gathered }: { gathered: boolean }) {
             >
               <span
                 className="onb-drift inline-flex items-center gap-8 rounded-full border border-border-default-soft bg-surface-card-default px-12 py-8 shadow-s"
-                style={{ animationDuration: `${6 + (i % 5)}s`, animationDelay: `${-i * 0.7}s` }}
+                style={{
+                  animationDuration: `${6 + (i % 5)}s`,
+                  animationDelay: `${-i * 0.7}s`,
+                }}
               >
-                <span className="size-8 shrink-0 rounded-full" style={{ background: TONES[i % 3] }} />
-                <Typography textStyle="body-md-medium" as="span" className="whitespace-nowrap">
+                <span
+                  className="size-8 shrink-0 rounded-full"
+                  style={{ background: TONES[i % 3] }}
+                />
+                <Typography
+                  textStyle="body-md-medium"
+                  as="span"
+                  className="whitespace-nowrap"
+                >
                   {p.label}
                 </Typography>
               </span>
@@ -62,10 +72,29 @@ export function WelcomeArt({ gathered }: { gathered: boolean }) {
         })}
 
         {/* The concierge: soft rings and the mascot, growing in as the pills arrive */}
-        <div className="absolute top-1/2 left-1/2" style={{ transform: "translate(-50%,-50%)" }}>
-          <div className="relative grid size-[min(250px,64vw)] place-items-center" style={{ opacity: gathered ? 1 : 0, transform: `scale(${gathered ? 1 : 0.3})`, transition: `opacity 1.2s ease 1s, transform 1.6s ${EASE} 1s` }}>
-            <i className="onb-ring absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(107,154,133,.16), rgba(107,154,133,.05) 70%)" }} />
-            <i className="onb-ring absolute inset-[17%] rounded-full bg-brand-surface-subtle" style={{ animationDelay: ".8s" }} />
+        <div
+          className="absolute top-1/2 left-1/2"
+          style={{ transform: "translate(-50%,-50%)" }}
+        >
+          <div
+            className="relative grid size-[min(250px,64vw)] place-items-center"
+            style={{
+              opacity: gathered ? 1 : 0,
+              transform: `scale(${gathered ? 1 : 0.3})`,
+              transition: `opacity 1.2s ease 1s, transform 1.6s ${EASE} 1s`,
+            }}
+          >
+            <i
+              className="onb-ring absolute inset-0 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(107,154,133,.16), rgba(107,154,133,.05) 70%)",
+              }}
+            />
+            <i
+              className="onb-ring absolute inset-[17%] rounded-full bg-brand-surface-subtle"
+              style={{ animationDelay: ".8s" }}
+            />
             <span className="relative grid size-[46%] place-items-center rounded-full border border-border-default-soft bg-surface-card-default shadow-m">
               <Mascot mood="happy" size={88} className="mt-4" />
             </span>
@@ -79,15 +108,24 @@ export function WelcomeArt({ gathered }: { gathered: boolean }) {
 
 /** The words: the title swaps in place from the problem to the answer, then a line of support. */
 export function WelcomeText({ gathered }: { gathered: boolean }) {
-  const title = { fontSize: 32, lineHeight: 1.1, letterSpacing: "-0.02em" } as const;
+  const title = {
+    fontSize: 32,
+    lineHeight: 1.1,
+    letterSpacing: "-0.02em",
+  } as const;
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-88 flex flex-col gap-8 px-20">
+    <div className="pointer-events-none absolute inset-x-0 bottom-[max(48px,env(safe-area-inset-bottom))] flex flex-col gap-8 px-20 opacity-70">
       <div className="grid">
         <Typography
           textStyle="heading-xl"
           as="h1"
           className="col-start-1 row-start-1 self-end text-balance"
-          style={{ ...title, opacity: gathered ? 0 : 1, transform: gathered ? "translateY(-10px)" : "none", transition: `all 1s ${EASE}` }}
+          style={{
+            ...title,
+            opacity: gathered ? 0 : 1,
+            transform: gathered ? "translateY(-10px)" : "none",
+            transition: `all 1s ${EASE}`,
+          }}
         >
           Car ownership is scattered.
         </Typography>
@@ -96,7 +134,12 @@ export function WelcomeText({ gathered }: { gathered: boolean }) {
           as="h1"
           className="col-start-1 row-start-1 self-end text-balance"
           aria-hidden={!gathered}
-          style={{ ...title, opacity: gathered ? 1 : 0, transform: gathered ? "none" : "translateY(10px)", transition: `all 1s ${EASE} ${gathered ? ".9s" : "0s"}` }}
+          style={{
+            ...title,
+            opacity: gathered ? 1 : 0,
+            transform: gathered ? "none" : "translateY(10px)",
+            transition: `all 1s ${EASE} ${gathered ? ".9s" : "0s"}`,
+          }}
         >
           Otto brings it all together.
         </Typography>
@@ -104,7 +147,10 @@ export function WelcomeText({ gathered }: { gathered: boolean }) {
       <Typography
         textStyle="body-lg-regular"
         color="secondary"
-        style={{ opacity: gathered ? 1 : 0, transition: `opacity 1.2s ease ${gathered ? "1.6s" : "0s"}` }}
+        style={{
+          opacity: gathered ? 1 : 0,
+          transition: `opacity 1.2s ease ${gathered ? "1.6s" : "0s"}`,
+        }}
       >
         One place for everything your car needs.
       </Typography>

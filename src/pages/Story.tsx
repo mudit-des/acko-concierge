@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
-import { Button } from "@acko/button";
-import { Close } from "@acko/icons";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
 import { USE_CASES } from "../data/story";
@@ -29,10 +34,16 @@ const DARK = "#08160e";
 const LIGHT = "#f5f7f3";
 /** The pictures fade out at the bottom, so they melt into the dark instead of ending in a hard edge. */
 const FADE_OUT = "linear-gradient(to bottom, #000 68%, transparent 100%)";
-const TITLE: CSSProperties = { fontSize: 32, lineHeight: 1.1, letterSpacing: "-0.02em" };
+const TITLE: CSSProperties = {
+  fontSize: 32,
+  lineHeight: 1.1,
+  letterSpacing: "-0.02em",
+};
 
 export default function Story() {
-  const reduce = useRef(window.matchMedia("(prefers-reduced-motion: reduce)").matches).current;
+  const reduce = useRef(
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  ).current;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
@@ -54,7 +65,10 @@ export default function Story() {
   }, [index, reduce]);
 
   const finish = useCallback(() => navigate("/chat"), []);
-  const next = useCallback(() => setIndex((i) => (i + 1 < TOTAL ? i + 1 : (finish(), i))), [finish]);
+  const next = useCallback(
+    () => setIndex((i) => (i + 1 < TOTAL ? i + 1 : (finish(), i))),
+    [finish],
+  );
   const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 
   // Pause while the tab is hidden; arrow keys and Escape work too.
@@ -99,10 +113,24 @@ export default function Story() {
 
   return (
     <div className="min-h-svh bg-surface-page-secondary">
-      <main className="relative mx-auto h-svh w-full max-w-480 overflow-hidden" style={{ background: index === 0 ? LIGHT : DARK, transition: "background-color 350ms ease" }} aria-roledescription="carousel" aria-label="What your concierge does">
+      <main
+        className="relative mx-auto h-svh w-full max-w-480 overflow-hidden"
+        style={{
+          background: index === 0 ? LIGHT : DARK,
+          transition: "background-color 350ms ease",
+        }}
+        aria-roledescription="carousel"
+        aria-label="What your concierge does"
+      >
         <div className="absolute inset-0">
           {/* Pictures: all mounted so they are ready, only the current one shows. They sit in the top part of the screen so the characters stay above the text. */}
-          <div className="absolute inset-x-0 top-0 h-[84%]" style={{ opacity: index === 0 ? 1 : 0, transition: "opacity 350ms ease" }}>
+          <div
+            className="absolute inset-x-0 top-0 h-[84%]"
+            style={{
+              opacity: index === 0 ? 1 : 0,
+              transition: "opacity 350ms ease",
+            }}
+          >
             <WelcomeArt key={welcomeRun} gathered={gathered} />
           </div>
           {USE_CASES.map((u, i) => (
@@ -113,24 +141,58 @@ export default function Story() {
               aria-hidden={i + 1 !== index}
               decoding="async"
               className="absolute inset-x-0 top-0 h-[84%] w-full object-cover"
-              style={{ objectPosition: u.focus ?? "50% 0%", opacity: i + 1 === index ? 1 : 0, transition: "opacity 350ms ease", WebkitMaskImage: FADE_OUT, maskImage: FADE_OUT }}
+              style={{
+                objectPosition: u.focus ?? "50% 0%",
+                opacity: i + 1 === index ? 1 : 0,
+                transition: "opacity 350ms ease",
+                WebkitMaskImage: FADE_OUT,
+                maskImage: FADE_OUT,
+              }}
             />
           ))}
           {/* Dark gradient that the words sit on */}
-          <div className="absolute inset-x-0 bottom-0 h-[62%]" style={{ background: `linear-gradient(to top, ${DARK} 0%, rgba(8,22,14,0.94) 30%, rgba(8,22,14,0.62) 62%, rgba(8,22,14,0) 100%)`, opacity: lightTop ? 0 : 1, transition: "opacity 350ms ease" }} aria-hidden="true" />
+          <div
+            className="absolute inset-x-0 bottom-0 h-[62%]"
+            style={{
+              background: `linear-gradient(to top, ${DARK} 0%, rgba(8,22,14,0.94) 30%, rgba(8,22,14,0.62) 62%, rgba(8,22,14,0) 100%)`,
+              opacity: lightTop ? 0 : 1,
+              transition: "opacity 350ms ease",
+            }}
+            aria-hidden="true"
+          />
 
           {/* Tap and hold area */}
-          <div className="absolute inset-x-0 top-64 bottom-120 touch-none select-none" onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={onCancel} onPointerLeave={onCancel} aria-hidden="true" />
+          <div
+            className="absolute inset-x-0 top-64 bottom-0 touch-none select-none"
+            onPointerDown={onDown}
+            onPointerUp={onUp}
+            onPointerCancel={onCancel}
+            onPointerLeave={onCancel}
+            aria-hidden="true"
+          />
 
           {/* Words */}
           {story ? (
-            <div key={story.id} className="pointer-events-none absolute inset-x-0 bottom-88 flex flex-col gap-8 px-20 text-white">
+            <div
+              key={story.id}
+              className="pointer-events-none absolute inset-x-0 bottom-[max(48px,env(safe-area-inset-bottom))] flex flex-col gap-8 px-20 text-white opacity-70"
+            >
               {story.topic && (
-                <Typography textStyle="label-lg-semibold" color="static" className="reveal-up opacity-85">
+                <Typography
+                  textStyle="label-lg-semibold"
+                  color="static"
+                  className="reveal-up opacity-85"
+                >
                   {story.topic}
                 </Typography>
               )}
-              <Typography textStyle="heading-xl" as="h1" color="static" className="reveal-up text-balance" style={{ ...TITLE, animationDelay: "120ms" }}>
+              <Typography
+                textStyle="heading-xl"
+                as="h1"
+                color="static"
+                className="reveal-up text-balance"
+                style={{ ...TITLE, animationDelay: "120ms" }}
+              >
                 {story.heading}
               </Typography>
             </div>
@@ -143,7 +205,11 @@ export default function Story() {
         <div className="absolute inset-x-0 top-0 px-12 pt-[max(12px,env(safe-area-inset-top))]">
           <ol className="flex gap-4" aria-label="Story progress">
             {Array.from({ length: TOTAL }, (_, i) => (
-              <li key={i} className={`relative h-3 flex-1 overflow-hidden rounded-full ${lightTop ? "bg-black/15" : "bg-white/35"}`} aria-current={i === index ? "step" : undefined}>
+              <li
+                key={i}
+                className={`relative h-3 flex-1 overflow-hidden rounded-full ${lightTop ? "bg-black/15" : "bg-white/35"}`}
+                aria-current={i === index ? "step" : undefined}
+              >
                 <span className="sr-only">{`Story ${i + 1} of ${TOTAL}`}</span>
                 {i < index || (reduce && i === index) ? (
                   <span className="absolute inset-0 bg-white" />
@@ -152,7 +218,10 @@ export default function Story() {
                     <span
                       key={index}
                       className={`story-fill absolute inset-y-0 left-0 ${lightTop ? "bg-text-primary" : "bg-white"}`}
-                      style={{ ["--storyDuration" as string]: `${index === 0 ? WELCOME_MS : STORY_MS}ms`, animationPlayState: running ? "running" : "paused" }}
+                      style={{
+                        ["--storyDuration" as string]: `${index === 0 ? WELCOME_MS : STORY_MS}ms`,
+                        animationPlayState: running ? "running" : "paused",
+                      }}
                       onAnimationEnd={next}
                     />
                   )
@@ -162,21 +231,27 @@ export default function Story() {
           </ol>
           <div className="mt-12 flex items-center justify-between">
             <span className="inline-flex items-center rounded-full border border-black/10 bg-white/90 px-10 py-4">
-              <img src={asset("/brand/acko-drive-wide-green.svg")} alt="ACKO Drive" height={14} className="h-14 w-auto" />
+              <img
+                src={asset("/brand/acko-drive-wide-green.svg")}
+                alt="ACKO Drive"
+                height={14}
+                className="h-14 w-auto"
+              />
             </span>
-            <button type="button" onClick={finish} aria-label="Skip to the chat" className={`grid size-36 place-items-center rounded-full ${lightTop ? "bg-black/10 text-text-primary" : "bg-black/25 text-white"}`}>
-              <span className="inline-flex size-20 [&_svg]:size-full" aria-hidden="true">
-                <Close />
-              </span>
+            <button
+              type="button"
+              onClick={finish}
+              className={`min-h-36 rounded-full px-12 ${lightTop ? "text-text-primary/70" : "text-white/80"}`}
+            >
+              <Typography
+                textStyle="label-lg-semibold"
+                as="span"
+                style={{ color: "inherit" }}
+              >
+                Skip
+              </Typography>
             </button>
           </div>
-        </div>
-
-        {/* The one action */}
-        <div className="absolute inset-x-0 bottom-0 px-16 pb-[max(16px,env(safe-area-inset-bottom))]">
-          <Button variant={lightTop ? "primary" : "white"} size="md" fullWidth onClick={finish}>
-            Learn more
-          </Button>
         </div>
       </main>
     </div>
