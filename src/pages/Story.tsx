@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { Button } from "@acko/button";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
@@ -60,6 +60,18 @@ export default function Story({ morph = false }: { morph?: boolean }) {
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
 
+  // Auto-advance: each card shows for a few seconds, then the next slides in (looping). Any touch,
+  // scroll, key or tap on a dot hands control to the person for good. It also pauses while the tab is hidden,
+  // and never starts with reduced motion.
+  const [auto, setAuto] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [tabVisible, setTabVisible] = useState(true);
+  const stopAuto = useCallback(() => setAuto(false), []);
+  useEffect(() => {
+    const onVis = () => setTabVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
   // Every card's text block takes the height of the tallest one, so the pictures are the same size on all cards.
   useLayoutEffect(() => {
     const fit = () => {
@@ -74,17 +86,22 @@ export default function Story({ morph = false }: { morph?: boolean }) {
     return () => window.removeEventListener("resize", fit);
   }, []);
 
+  // While we scroll to a card ourselves, ignore the scroll events (they would briefly report the cards in between).
+  const programmatic = useRef(0);
   const goTo = useCallback((i: number) => {
     const track = trackRef.current;
     const el = slideRefs.current[i];
     const first = slideRefs.current[0];
     if (!track || !el || !first) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.clearTimeout(programmatic.current);
+    programmatic.current = window.setTimeout(() => (programmatic.current = 0), reduce ? 50 : 1000);
     track.scrollTo({ left: el.offsetLeft - first.offsetLeft, behavior: reduce ? "auto" : "smooth" });
     setActive(i);
   }, []);
 
   const onScroll = useCallback(() => {
+    if (programmatic.current) return;
     const track = trackRef.current;
     const first = slideRefs.current[0];
     const second = slideRefs.current[1];
@@ -103,6 +120,10 @@ export default function Story({ morph = false }: { morph?: boolean }) {
             className="no-scrollbar flex h-full snap-x snap-mandatory scroll-pl-12 gap-8 overflow-x-auto overscroll-x-contain px-12 pt-4 pb-24"
             tabIndex={0}
             onScroll={onScroll}
+            onPointerDown={stopAuto}
+            onTouchStart={stopAuto}
+            onWheel={stopAuto}
+            onKeyDown={stopAuto}
           >
             {USE_CASES.map((u, i) => (
               <div
@@ -131,9 +152,25 @@ export default function Story({ morph = false }: { morph?: boolean }) {
               className="flex h-32 items-center px-4"
               aria-label={`Go to card ${i + 1}`}
               aria-current={active === i ? "true" : undefined}
-              onClick={() => goTo(i)}
+              onClick={() => {
+                stopAuto();
+                goTo(i);
+              }}
             >
-              <span className={`block h-4 rounded-full transition-[width,background-color] duration-300 ${active === i ? "w-20 bg-text-primary" : "w-4 bg-border-default-medium"}`} />
+              <span
+                className={`relative block h-4 overflow-hidden rounded-full transition-[width,background-color] duration-300 ${
+                  active === i ? `w-20 ${auto ? "bg-border-default-soft" : "bg-text-primary"}` : "w-4 bg-border-default-medium"
+                }`}
+              >
+                {active === i && auto && (
+                  <span
+                    key={active}
+                    className="story-fill absolute inset-y-0 left-0 rounded-full bg-text-primary"
+                    style={{ ["--storyDuration" as string]: "5500ms", animationPlayState: tabVisible ? "running" : "paused" }}
+                    onAnimationEnd={() => goTo((i + 1) % TOTAL)}
+                  />
+                )}
+              </span>
             </button>
           ))}
         </div>

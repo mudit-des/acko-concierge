@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@acko/button";
 import { ArrowUp, Close } from "@acko/icons";
 import { Typography } from "@acko/typography";
@@ -23,7 +23,14 @@ interface Msg {
 let nextId = 1;
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export function ConciergeChat({ open, onClose }: { open: boolean; onClose: () => void }) {
+/** Something to say as soon as the chat opens, such as a tapped suggestion. `id` makes each request new. */
+export interface ChatRequest {
+  id: number;
+  text: string;
+  intent: IntentId;
+}
+
+export function ConciergeChat({ open, onClose, request }: { open: boolean; onClose: () => void; request?: ChatRequest }) {
   const [messages, setMessages] = useState<Msg[]>([{ id: nextId++, from: "bot", text: GREETING, chips: START_CHIPS }]);
   const [typing, setTyping] = useState(false);
   const [draft, setDraft] = useState("");
@@ -45,7 +52,7 @@ export function ConciergeChat({ open, onClose }: { open: boolean; onClose: () =>
     };
   }, [open, onClose]);
 
-  const reply = (intent: IntentId) => {
+  const reply = useCallback((intent: IntentId) => {
     setTyping(true);
     window.setTimeout(
       () => {
@@ -54,12 +61,23 @@ export function ConciergeChat({ open, onClose }: { open: boolean; onClose: () =>
       },
       reduceMotion() ? 0 : 800,
     );
-  };
+  }, []);
 
-  const say = (text: string, intent: IntentId) => {
-    setMessages((m) => [...m.map((x) => ({ ...x, chips: undefined })), { id: nextId++, from: "user", text }]);
-    reply(intent);
-  };
+  const say = useCallback(
+    (text: string, intent: IntentId) => {
+      setMessages((m) => [...m.map((x) => ({ ...x, chips: undefined })), { id: nextId++, from: "user", text }]);
+      reply(intent);
+    },
+    [reply],
+  );
+
+  // A request from outside (a tapped chip or tile, or text typed on the page) is sent once, when the chat is open.
+  const handled = useRef(0);
+  useEffect(() => {
+    if (!open || !request || request.id === handled.current) return;
+    handled.current = request.id;
+    say(request.text, request.intent);
+  }, [open, request, say]);
 
   const pick = (chip: Chip) => {
     if (chip.to) {

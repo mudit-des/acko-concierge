@@ -21,7 +21,7 @@ interface Intent {
   keywords?: string[];
 }
 
-export const GREETING = "Hi, I'm your ACKO Drive concierge. I can help with buying, selling or exchanging a car, insurance and claims, and quick checks. What do you need?";
+export const GREETING = "Hi, I'm your ACKO Drive concierge. Ask me anything about your car, and we'll get back to you here.";
 
 export const NOTE = "AI-assisted. A person can step in any time.";
 

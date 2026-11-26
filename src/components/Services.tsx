@@ -1,9 +1,10 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Card } from "@acko/card";
 import { Fastag, PollutionCentre, TrafficFines } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
 import { navigate } from "../router";
+import type { IntentId } from "../data/chat";
 import { Icon, type IconType } from "./Icon";
 
 /*
@@ -48,6 +49,7 @@ function CarCard({
   image,
   icon,
   to,
+  onPress,
   tall = false,
   fill = false,
   position,
@@ -58,6 +60,8 @@ function CarCard({
   image?: string;
   icon?: IconType;
   to?: string;
+  /** what a tap does when there is no page to open yet */
+  onPress?: () => void;
   tall?: boolean;
   /** picture grows to fill the tile's height */
   fill?: boolean;
@@ -68,7 +72,7 @@ function CarCard({
   return (
     <Card
       variant="primary"
-      onTap={() => to && navigate(to)}
+      onTap={() => (to ? navigate(to) : onPress?.())}
       semanticLabel={title}
       style={CARD_STYLE}
       className={`h-full text-left transition-transform duration-200 active:scale-[0.98] ${className}`}
@@ -104,30 +108,49 @@ function CarCard({
   );
 }
 
-const QUICK: { title: string; icon: IconType }[] = [
-  { title: "Check challans", icon: TrafficFines },
-  { title: "Recharge FASTag", icon: Fastag },
-  { title: "See PUC validity", icon: PollutionCentre },
+const QUICK: { title: string; icon: IconType; intent: IntentId }[] = [
+  { title: "Check challans", icon: TrafficFines, intent: "challans" },
+  { title: "Recharge FASTag", icon: Fastag, intent: "fastag" },
+  { title: "See PUC validity", icon: PollutionCentre, intent: "puc" },
 ];
 
-export function Services() {
+export function Services({ onAsk }: { onAsk: (text: string, intent: IntentId) => void }) {
   const [stage, setStage] = useState(0);
+  const ref = useRef<HTMLElement>(null);
 
-  // The tiles arrive one after another when the page opens (all at once with reduced motion).
+  // The tiles arrive one after another when the section first scrolls into view (all at once with reduced motion).
   useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setStage(STAGES);
       return;
     }
-    const timers = Array.from({ length: STAGES }, (_, k) => window.setTimeout(() => setStage(k + 1), 250 + k * 220));
-    return () => timers.forEach((t) => window.clearTimeout(t));
+    const timers: number[] = [];
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        for (let k = 0; k < STAGES; k++) timers.push(window.setTimeout(() => setStage(k + 1), 100 + k * 180));
+      },
+      { threshold: 0.15 },
+    );
+    io.observe(node);
+    return () => {
+      io.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
+    };
   }, []);
 
   return (
-    <section id="services" aria-labelledby="services-title" className="px-16 pt-16 pb-24">
-      <Typography textStyle="heading-xl" as="h2" id="services-title">
-        One stop shop for all things car.
-      </Typography>
+    <section ref={ref} id="services" aria-labelledby="services-title" className="px-16 pt-24 pb-24">
+      <div className="flex items-center gap-12" id="services-title">
+        <span className="h-px flex-1 bg-border-default-soft" aria-hidden="true" />
+        <Typography textStyle="label-md-semibold" color="secondary" as="h2">
+          Or browse what we do
+        </Typography>
+        <span className="h-px flex-1 bg-border-default-soft" aria-hidden="true" />
+      </div>
 
       <div className="mt-16 flex flex-col gap-8">
         {/* One bento: Buy large on the left, Sell and Exchange stacked beside it, Insurance full width below, same 8px gap throughout */}
@@ -143,15 +166,15 @@ export function Services() {
             />
           </Reveal>
           <Reveal on={stage >= 2}>
-            <CarCard title="Sell" body="A fair price and a verified buyer." image={asset("/illustrations/tile-sell.webp")} position="50% 40%" />
+            <CarCard title="Sell" body="A fair price and a verified buyer." image={asset("/illustrations/tile-sell.webp")} position="50% 40%" onPress={() => onAsk("I'd like to sell my car", "sell")} />
           </Reveal>
           <Reveal on={stage >= 3}>
-            <CarCard title="Exchange" body="Trade in your old car for a new one." image={asset("/illustrations/tile-exchange.webp")} position="50% 40%" />
+            <CarCard title="Exchange" body="Trade in your old car for a new one." image={asset("/illustrations/tile-exchange.webp")} position="50% 40%" onPress={() => onAsk("I'd like to exchange my car", "exchange")} />
           </Reveal>
         </div>
 
         <Reveal on={stage >= 4}>
-          <CarCard title="Car insurance" body="Buy, renew or claim in one place." image={asset("/illustrations/tile-insure.webp")} tall />
+          <CarCard title="Car insurance" body="Buy, renew or claim in one place." image={asset("/illustrations/tile-insure.webp")} tall onPress={() => onAsk("I need help with car insurance", "insurance")} />
         </Reveal>
 
         <Reveal on={stage >= 5} className="mt-8">
@@ -163,7 +186,7 @@ export function Services() {
               <Card
                 key={q.title}
                 variant="primary"
-                onTap={() => undefined}
+                onTap={() => onAsk(q.title, q.intent)}
                 semanticLabel={q.title}
                 style={CARD_STYLE}
                 className="text-left transition-transform duration-200 active:scale-[0.98]"

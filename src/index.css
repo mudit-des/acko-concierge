@@ -143,6 +143,13 @@ body {
 .chat-backdrop { animation: chat-in 300ms ease both; }
 @media (prefers-reduced-motion: reduce) { .chat-sheet, .chat-backdrop { animation: none !important; } }
 
+/* Ask bar hint: the old line rolls up and out, the new one rolls up and in */
+@keyframes ask-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-100%); opacity: 0; } }
+@keyframes ask-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.ask-out { animation: ask-out 500ms cubic-bezier(.22, .8, .2, 1) both; }
+.ask-in { animation: ask-in 500ms cubic-bezier(.22, .8, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .ask-out, .ask-in { animation: none !important; } }
+
 /* App-opening screen: pills bob gently, the concierge rings breathe */
 @keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
