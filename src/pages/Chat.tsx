@@ -232,7 +232,7 @@ export default function Chat({
 
   const showHint = !draft && !focused;
   const pill =
-    "inline-flex min-h-40 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
+    "inline-flex min-h-32 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
 
   const renderBody = (m: Msg) => {
     if (m.kind === "quick")
@@ -492,7 +492,7 @@ export default function Chat({
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-label="Show the menu"
-            className="grid size-52 shrink-0 place-items-center rounded-full border border-border-default-medium bg-surface-card-default text-text-primary active:scale-[0.96]"
+            className="grid size-48 shrink-0 place-items-center rounded-full border border-border-default-medium bg-surface-card-default text-text-primary active:scale-[0.96]"
           >
             <span className="inline-flex size-24" aria-hidden="true">
               <svg
@@ -510,7 +510,7 @@ export default function Chat({
               </svg>
             </span>
           </button>
-          <div className="relative flex min-w-0 flex-1 items-center gap-8 rounded-full border border-border-default-medium bg-surface-card-default py-4 pr-4 pl-20 shadow-s focus-within:border-text-primary">
+          <div className="relative flex min-w-0 flex-1 items-center gap-8 rounded-full border border-border-default-medium bg-surface-card-default py-3 pr-3 pl-20 shadow-s focus-within:border-text-primary">
             {showHint && (
               <span className="pointer-events-none absolute inset-y-0 right-60 left-20 flex items-center">
                 <RollingHint />
@@ -522,13 +522,13 @@ export default function Chat({
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               aria-label="Message Otto"
-              className="h-44 min-w-0 flex-1 bg-transparent text-[16px] text-text-primary outline-none"
+              className="h-40 min-w-0 flex-1 bg-transparent text-[16px] text-text-primary outline-none"
             />
             <button
               type="submit"
               aria-label="Send"
               disabled={!draft.trim()}
-              className="grid size-44 shrink-0 place-items-center rounded-full text-white transition-opacity disabled:opacity-55"
+              className="grid size-40 shrink-0 place-items-center rounded-full text-white transition-opacity disabled:opacity-55"
               style={{ backgroundColor: "var(--brandPrimary600)" }}
             >
               <span

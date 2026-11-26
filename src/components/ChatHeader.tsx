@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@acko/button";
-import { Drawer } from "@acko/drawer";
 import { ChevronDown, ChevronUp } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { STAGES } from "../data/booking";
@@ -36,8 +35,6 @@ export function ChatHeader({
   /** Called with a step index when a finished or current step in the open panel is tapped. */
   onSelectStage?: (stage: number) => void;
 }) {
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [requested, setRequested] = useState(false);
   const [stepsOpen, setStepsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -67,12 +64,7 @@ export function ChatHeader({
         className="sticky top-0 bg-surface-page-primary/95 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8 backdrop-blur-md"
         style={{ zIndex: "var(--zSticky)" }}
       >
-        <OttoHeader
-          mood={mood}
-          talking={talking}
-          onBack={onBack}
-          onHelp={() => setHelpOpen(true)}
-        />
+        <OttoHeader mood={mood} talking={talking} onBack={onBack} />
 
         {car && (
           <>
@@ -190,35 +182,6 @@ export function ChatHeader({
           </>
         )}
       </header>
-
-      <Drawer
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        side="bottom"
-        title="Need a hand?"
-        description={
-          requested
-            ? "Done. We'll call you shortly."
-            : "We can call you back, usually within a few minutes."
-        }
-        footer={
-          <Button
-            size="lg"
-            fullWidth
-            disabled={requested}
-            onClick={() => setRequested(true)}
-          >
-            {requested ? "Call-back requested" : "Request a call-back"}
-          </Button>
-        }
-      >
-        <div className="pb-8">
-          <Typography textStyle="body-md-regular" color="secondary">
-            You can also keep going here. Your concierge will see everything
-            you've done so far.
-          </Typography>
-        </div>
-      </Drawer>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { Button } from "@acko/button";
-import { ArrowLeft, CustomerService } from "@acko/icons";
+import { ArrowLeft } from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { asset } from "../asset";
 import { CONCIERGE_NAME } from "../data/booking";
@@ -7,23 +7,21 @@ import { Mascot, type MascotMood } from "./Mascot";
 
 /*
  * The top of every screen with Otto: the mascot, "Otto by ACKO Drive" and, where a page wants them,
- * Back on the left and "Get help" on the right. One line, the same everywhere, no scroll behaviour.
+ * Back on the left where a page wants it. One line, the same everywhere, no scroll behaviour.
  */
 
 export function OttoHeader({
   mood = "happy",
   talking = false,
   onBack,
-  onHelp,
 }: {
   mood?: MascotMood;
   talking?: boolean;
   onBack?: () => void;
-  onHelp?: () => void;
 }) {
   return (
     <div
-      className={`flex min-h-44 items-center gap-4 [&_button]:text-text-primary! ${onBack ? "-ml-8" : ""} ${onHelp ? "-mr-8" : ""}`}
+      className={`flex min-h-44 items-center gap-4 [&_button]:text-text-primary! ${onBack ? "-ml-8" : ""}`}
     >
       {onBack && (
         <Button
@@ -57,16 +55,6 @@ export function OttoHeader({
           className="h-16 w-auto"
         />
       </div>
-      {onHelp && (
-        <Button
-          variant="ghost"
-          size="sm"
-          iconLeft={<CustomerService aria-hidden="true" />}
-          onClick={onHelp}
-        >
-          Get help
-        </Button>
-      )}
     </div>
   );
 }
