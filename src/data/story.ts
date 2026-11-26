@@ -16,17 +16,15 @@ export const PILLS: { label: string; /** drift offsets in px, and duration in se
 ];
 
 /**
- * The four things a customer can hand to the concierge, each opening with a customer's own words.
- * The first three quotes come from the research notes. The fourth is a placeholder to replace with a
- * real quote. All replies are placeholders until the business confirms the promises.
+ * The four things a customer can hand to the concierge: a question the customer is asking themselves,
+ * then the concierge's promise. Copy comes from the business and is final unless noted.
  */
 export interface UseCase {
   id: string;
-  /** What the customer is doing. */
-  topic: string;
+  /** The question, shown small above the promise. Optional: a card can be just a promise. */
+  topic?: string;
+  /** The promise, shown large. */
   heading: string;
-  user: string;
-  reply: string;
   image: string;
   imageAlt: string;
 }
@@ -34,38 +32,37 @@ export interface UseCase {
 export const USE_CASES: UseCase[] = [
   {
     id: "buying",
-    topic: "Buying a car",
-    heading: "Stop chasing. We'll do it.",
-    user: "I chase the dealer, the bank and the garage, and hear about delays late.",
-    reply: "We do the chasing. You get one thread with every update.",
-    image: "/illustrations/scene-chasing.webp",
-    imageAlt: "A concierge with a clipboard beside a car. One glowing thread links a showroom, a bank and a garage, with a ticked document travelling along it.",
+    topic: "Buying a car?",
+    heading: "Leave the research and negotiations to us!",
+    image: "/illustrations/scene-buying.webp",
+    imageAlt: "In front of a glass showroom the concierge shakes hands with a smiling dealer holding a ticked clipboard, under a floating ticked price tag, while the customer relaxes on a bench with a cup of tea beside a new car with a ribbon bow.",
   },
   {
     id: "servicing",
-    topic: "Servicing your car",
-    heading: "Know it's needed. Know it's fair.",
-    user: "A free service suddenly cost ₹10k. Was any of it needed?",
-    reply: "We explain every line before you approve, and compare quotes for you.",
-    image: "/illustrations/scene-fair.webp",
-    imageAlt: "A floating checklist with ticks and a magnifying glass, a price tag and a level scale beside a garage, above a parked car.",
+    topic: "Need it serviced?",
+    heading: "Free pick up and drop, your personal valet",
+    image: "/illustrations/scene-servicing.webp",
+    imageAlt: "The concierge holds out a car key beside a sage hatchback. A glowing dotted route loops from a house, where the customer waves with a cup, to a garage and back.",
   },
   {
     id: "trouble",
-    topic: "When something goes wrong",
-    heading: "Stuck? We step in.",
-    user: "A warning light just ruined my weekend.",
-    reply: "Message us and we step in. We also track what's due, so little catches you out.",
-    image: "/illustrations/scene-peace.webp",
-    imageAlt: "A car at dusk with a floating calendar of ticked reminders, a switched-off warning light and a chat bubble with a tick.",
+    topic: "Something goes wrong?",
+    heading: "Roadside assistance when you want it",
+    image: "/illustrations/scene-roadside.webp",
+    imageAlt: "At dusk the concierge waves beside a sage hatchback that has pulled over with its hazard lights on, holding up a phone with a ticked chat bubble while a tow truck arrives.",
   },
   {
     id: "selling",
-    topic: "Selling or upgrading",
-    heading: "Sell without the haggling.",
-    user: "Selling means strangers, lowball offers and endless back and forth.",
-    reply: "A fair valuation, a verified buyer, and the paperwork handled.",
-    image: "/illustrations/scene-lifecycle.webp",
-    imageAlt: "A winding road past a showroom, the car under a shield and a garage, with a newer car waiting further along.",
+    topic: "Looking to sell or exchange?",
+    heading: "We've got you covered!",
+    image: "/illustrations/scene-sellexchange.webp",
+    imageAlt: "Under a soft protective shield, an older car and a newer sage car with a ribbon bow, joined by a swap arrow, while the concierge shakes hands with a buyer and holds a ticked document.",
+  },
+  {
+    id: "onestop",
+    topic: "All things car",
+    heading: "Managed by your concierge",
+    image: "/illustrations/scene-fair.webp",
+    imageAlt: "A floating checklist with ticks and a magnifying glass, a price tag and a level scale beside a garage, above a parked car.",
   },
 ];

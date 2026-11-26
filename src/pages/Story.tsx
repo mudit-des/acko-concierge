@@ -32,23 +32,14 @@ function StoryCard({ useCase }: { useCase: UseCase }) {
 
       <div data-story-content className="flex shrink-0 flex-col gap-16 px-24 pt-4 pb-20">
         <div className="story-in flex flex-col gap-8" style={delay(0)}>
-          <Typography textStyle="label-md-semibold" color="secondary">
-            {useCase.topic}
-          </Typography>
-          <Typography textStyle="heading-xl" as="h2" className="text-balance" style={TITLE}>
+          {useCase.topic && (
+            <Typography textStyle="label-lg-semibold" color="secondary">
+              {useCase.topic}
+            </Typography>
+          )}
+          <Typography textStyle="heading-xl" as="h2" className="text-balance whitespace-pre-line" style={TITLE}>
             {useCase.heading}
           </Typography>
-        </div>
-
-        <div className="flex flex-col gap-8">
-          <div className="story-in max-w-[90%] self-end rounded-3xl rounded-br-md bg-surface-page-secondary px-16 py-12" style={delay(250)}>
-            <Typography textStyle="body-lg-regular" color="secondary">
-              {useCase.user}
-            </Typography>
-          </div>
-          <div className="story-in max-w-[90%] self-start rounded-3xl rounded-bl-md bg-brand-surface-subtle px-16 py-12" style={delay(550)}>
-            <Typography textStyle="body-lg-medium">{useCase.reply}</Typography>
-          </div>
         </div>
       </div>
     </article>
