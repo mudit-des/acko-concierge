@@ -112,7 +112,7 @@ export default function BuyCar({ step, search }: { step: number; search: string 
           talking={talking}
           car={step > 0 ? { name: CAR.name, image: CAR.image, status, busy, stage: stageNow, allDone: delivered } : undefined}
           onSelectStage={step > 0 ? goToStage : undefined}
-          onBack={() => (window.history.length > 1 ? window.history.back() : navigate(step > 0 ? STEPS[step - 1].path : "/home"))}
+          onBack={() => (window.history.length > 1 ? window.history.back() : navigate(step > 0 ? STEPS[step - 1].path : "/chat"))}
         />
 
         {/* Booked screen: the full car card, the deadline and what happens next */}
@@ -194,7 +194,7 @@ export default function BuyCar({ step, search }: { step: number; search: string 
                   ref={(el) => {
                     groupRefs.current[i] = el;
                   }}
-                  className="flex scroll-mt-160 flex-col gap-8"
+                  className="flex scroll-mt-200 flex-col gap-8"
                 >
                   <Typography textStyle="helper-sm-regular" color="secondary">
                     {s.time}

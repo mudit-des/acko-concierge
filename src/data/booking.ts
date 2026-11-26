@@ -11,7 +11,7 @@ import type { IconType } from "../components/Icon";
  * insurance start rules.
  */
 export const CAR = { name: "Hyundai Creta", model: "SX", image: asset("/illustrations/car-creta.webp"), imageRatio: { width: 930, height: 620 } };
-export const CONCIERGE_NAME = "Your concierge"; // swap for the mascot's name once chosen
+export const CONCIERGE_NAME = "Otto"; // the concierge's name (working name, pending a trademark check)
 export const BOOKING_AMOUNT = 10000;
 export const DELIVERY_DATE = "12 Dec";
 export const PAPERWORK_DEADLINE = "tomorrow, 6 pm";

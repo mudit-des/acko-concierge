@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
  * Tiny History-API router for a handful of pages (see App.tsx for the list).
  * Swap for react-router if the app grows nested routes or data loading.
  * The app can live under a base path (GitHub Pages: /acko-concierge). App code only ever uses
- * paths without the base, for example "/home"; this file adds and strips it.
+ * paths without the base, for example "/chat"; this file adds and strips it.
  * Hosting needs a fallback that serves index.html for unknown paths (the deploy script adds 404.html).
  */
 

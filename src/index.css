@@ -128,35 +128,13 @@ body {
 [data-active="true"] .story-in { animation: reveal-up var(--motionRevealDuration) var(--motionEaseOut) both; animation-delay: var(--d, 0ms); }
 @media (prefers-reduced-motion: reduce) { .story-in { animation: none !important; } }
 
-/* Story screen after the welcome concierge has contracted away: the cards fade in slowly, then the dots and
-   button, then the lines on the first card */
-@keyframes se-fade { from { opacity: 0; } to { opacity: 1; } }
-.story-morph .se-card { animation: se-fade 1400ms ease-in-out both; }
-.story-morph .se-foot { animation: se-fade 900ms ease-in-out 900ms both; }
-.story-morph [data-active="true"] .story-in { animation-delay: calc(var(--d, 0ms) + 900ms); }
-@media (prefers-reduced-motion: reduce) { .story-morph .se-card, .story-morph .se-foot { animation: none !important; } }
-
-/* Chat sheet: slides up from the bottom over a fading backdrop */
-@keyframes chat-up { from { transform: translateY(100%); } to { transform: none; } }
-@keyframes chat-in { from { opacity: 0; } to { opacity: 1; } }
-.chat-sheet { animation: chat-up 380ms cubic-bezier(.22, .8, .2, 1) both; }
-.chat-backdrop { animation: chat-in 300ms ease both; }
-@media (prefers-reduced-motion: reduce) { .chat-sheet, .chat-backdrop { animation: none !important; } }
-
-/* Ask bar hint: the old line rolls up and out, the new one rolls up and in */
-@keyframes ask-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-100%); opacity: 0; } }
-@keyframes ask-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.ask-out { animation: ask-out 500ms cubic-bezier(.22, .8, .2, 1) both; }
-.ask-in { animation: ask-in 500ms cubic-bezier(.22, .8, .2, 1) both; }
-@media (prefers-reduced-motion: reduce) { .ask-out, .ask-in { animation: none !important; } }
-
 /* App-opening screen: pills bob gently, the concierge rings breathe */
 @keyframes onb-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes onb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 .onb-drift { animation: onb-drift 7s ease-in-out infinite; }
 .onb-ring { animation: onb-breathe 6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .onb *, .onb-drift, .onb-ring { animation: none !important; transition: none !important; }
+  .onb-drift, .onb-ring { animation: none !important; }
 }
 
 /* Brief highlight on an update the reader jumped to from the steps list */
@@ -171,3 +149,4 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .flash { animation: none; }
 }
+

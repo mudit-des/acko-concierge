@@ -3,13 +3,14 @@ import { Button } from "@acko/button";
 import { Drawer } from "@acko/drawer";
 import { ArrowLeft, ChevronDown, ChevronUp, CustomerService } from "@acko/icons";
 import { Typography } from "@acko/typography";
+import { asset } from "../asset";
 import { CONCIERGE_NAME, STAGES } from "../data/booking";
 import { Mascot, type MascotMood } from "./Mascot";
 import { StepsTimeline } from "./StepsTimeline";
 
 /**
- * Header for the car purchase pages: a floating pill with the back button, the mascot as a small
- * avatar right beside it, and "Get help" on the right.
+ * Header for the car purchase pages, matching the chat: the ACKO Drive wordmark on top with back and
+ * "Get help", then Otto (avatar, name, note).
  * After the booking, a miniature car card is pinned underneath with the car's name, its live
  * status and a control that opens the full next-steps list.
  */
@@ -52,26 +53,17 @@ export function ChatHeader({
 
   return (
     <>
-      <header className="sticky top-0 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8" style={{ zIndex: "var(--zSticky)" }}>
+      <header className="sticky top-0 bg-surface-page-primary/95 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8 backdrop-blur-md" style={{ zIndex: "var(--zSticky)" }}>
         <Typography textStyle="helper-sm-regular" className="sr-only">
           {CONCIERGE_NAME}
         </Typography>
 
-        {/* Floating pill: always rounded, bordered and softly shadowed */}
-        <div
-          className={`flex items-center gap-4 rounded-full border border-border-default-soft bg-surface-card-default/90 p-4 backdrop-blur-md transition-shadow duration-200 [&_button]:text-text-primary! ${
-            scrolled ? "shadow-l" : "shadow-m"
-          }`}
-        >
+        {/* The brand on top, as on the chat: back on the left, help on the right */}
+        <div className={`-mx-8 flex items-center gap-4 transition-shadow duration-200 [&_button]:text-text-primary!`}>
           <Button variant="ghost" size="sm" iconOnly iconLeft={<ArrowLeft aria-hidden="true" />} aria-label="Back" onClick={onBack}>
             Back
           </Button>
-          <span className="relative" aria-hidden="true">
-            <span className="grid size-44 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
-              <Mascot mood={mood} talking={talking} size={40} className="mt-4" />
-            </span>
-            <span className="absolute right-0 bottom-0 size-12 rounded-full border-2 border-surface-card-default bg-surface-status-success" />
-          </span>
+          <img src={asset("/brand/acko-drive-wide-green.svg")} alt="ACKO Drive" height={20} className="h-20 w-auto" />
           <span className="ml-auto">
             <Button variant="ghost" size="sm" iconLeft={<CustomerService aria-hidden="true" />} onClick={() => setHelpOpen(true)}>
               Get help
@@ -159,6 +151,23 @@ export function ChatHeader({
           </>
         )}
       </header>
+
+      <div className="flex items-center gap-12 px-16 pt-8 pb-4">
+        <span className="relative shrink-0" aria-hidden="true">
+          <span className="grid size-44 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
+            <Mascot mood={mood} talking={talking} size={40} className="mt-4" />
+          </span>
+          <span className="absolute right-0 bottom-0 size-12 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
+        </span>
+        <div className="flex min-w-0 flex-col">
+          <Typography textStyle="label-lg-semibold" truncate>
+            {CONCIERGE_NAME}
+          </Typography>
+          <Typography textStyle="helper-sm-regular" color="secondary" truncate>
+            AI-assisted. A person can step in any time.
+          </Typography>
+        </div>
+      </div>
 
       <Drawer
         open={helpOpen}

@@ -23,14 +23,30 @@ const DOCUMENTS_ROW: Row = {
 
 // Documents upload sits between "Booked" and "Documents received".
 const ROWS: Row[] = [
-  ...STEPS.slice(0, 1).map((s) => ({ path: s.path, title: s.title, summary: s.summary })),
+  ...STEPS.slice(0, 1).map((s) => ({
+    path: s.path,
+    title: s.title,
+    summary: s.summary,
+  })),
   DOCUMENTS_ROW,
-  ...STEPS.slice(1).map((s) => ({ path: s.path, title: s.title, summary: s.summary })),
+  ...STEPS.slice(1).map((s) => ({
+    path: s.path,
+    title: s.title,
+    summary: s.summary,
+  })),
 ];
 
 const EXTRA: Row[] = [
-  { path: "/buy-car/finance?choice=us", title: "Choose how to pay: finance through us", summary: "The finance page with the customer's reply shown." },
-  { path: "/buy-car/finance?choice=bank", title: "Choose how to pay: own bank", summary: "The finance page with the own-bank reply shown." },
+  {
+    path: "/buy-car/finance?choice=us",
+    title: "Choose how to pay: finance through us",
+    summary: "The finance page with the customer's reply shown.",
+  },
+  {
+    path: "/buy-car/finance?choice=bank",
+    title: "Choose how to pay: own bank",
+    summary: "The finance page with the own-bank reply shown.",
+  },
 ];
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -60,7 +76,11 @@ function Item({ row, n }: { row: Row; n?: number }) {
           <Typography textStyle="body-md-regular" color="secondary">
             {row.summary}
           </Typography>
-          <Typography textStyle="helper-sm-medium" color="brand" className="break-all">
+          <Typography
+            textStyle="helper-sm-medium"
+            color="brand"
+            className="break-all"
+          >
             {row.path}
           </Typography>
         </div>
@@ -74,7 +94,7 @@ export default function States() {
     <div className="min-h-svh bg-surface-page-secondary">
       <main className="mx-auto min-h-svh w-full max-w-480 bg-surface-page-primary pb-64">
         <header className="flex flex-col gap-8 px-16 pt-[max(24px,env(safe-area-inset-top))]">
-          <Link to="/home" className="inline-flex min-h-44 items-center">
+          <Link to="/chat" className="inline-flex min-h-44 items-center">
             <Typography textStyle="label-md-medium" color="brand">
               Back to home
             </Typography>
@@ -83,7 +103,8 @@ export default function States() {
             All screens
           </Typography>
           <Typography textStyle="body-md-regular" color="secondary">
-            Every screen of the car purchase has its own address. This page is for reviewers.
+            Every screen of the car purchase has its own address. This page is
+            for reviewers.
           </Typography>
         </header>
 
@@ -100,10 +121,43 @@ export default function States() {
         </Section>
 
         <Section title="Other">
-          <Item row={{ path: "/welcome", title: "Welcome", summary: "The app-opening animation: scattered pills gather into the concierge." }} />
-          <Item row={{ path: "/story", title: "Story", summary: "Four giant cards on what the concierge does, with Learn more." }} />
-          <Item row={{ path: "/home", title: "Services", summary: "The services bento, with the nav pill." }} />
-          <Item row={{ path: "/style-guide", title: "Style guide", summary: "The temporary sage style guide." }} />
+          <Item
+            row={{
+              path: "/story",
+              title: "Story",
+              summary:
+                "The opening animation, then four full-screen stories, with Learn more.",
+            }}
+          />
+          <Item
+            row={{
+              path: "/chat-2",
+              title: "Chat 2",
+              summary: "The chat without the 2x2 browse grid.",
+            }}
+          />
+          <Item
+            row={{
+              path: "/chat",
+              title: "Chat",
+              summary:
+                "Welcome, quick actions with the ongoing link, then every service. Menu button re-posts them.",
+            }}
+          />
+          <Item
+            row={{
+              path: "/home",
+              title: "Home tab",
+              summary: "Booking in progress, glove box, and what we do.",
+            }}
+          />
+          <Item
+            row={{
+              path: "/style-guide",
+              title: "Style guide",
+              summary: "The temporary sage style guide.",
+            }}
+          />
         </Section>
       </main>
     </div>

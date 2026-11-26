@@ -105,7 +105,7 @@ export default function StyleGuide() {
             <Badge color="orange" size="md">
               Temporary
             </Badge>
-            <Link to="/home" className="inline-flex min-h-44 items-center">
+            <Link to="/chat" className="inline-flex min-h-44 items-center">
               <Typography textStyle="label-md-medium" color="brand">
                 Back to landing page
               </Typography>

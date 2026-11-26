@@ -27,6 +27,8 @@ export interface UseCase {
   heading: string;
   image: string;
   imageAlt: string;
+  /** CSS object-position for the full-screen picture, to keep the subject in view. */
+  focus?: string;
 }
 
 export const USE_CASES: UseCase[] = [
@@ -57,12 +59,5 @@ export const USE_CASES: UseCase[] = [
     heading: "We've got you covered!",
     image: "/illustrations/scene-sellexchange.webp",
     imageAlt: "Under a soft protective shield, an older car and a newer sage car with a ribbon bow, joined by a swap arrow, while the concierge shakes hands with a buyer and holds a ticked document.",
-  },
-  {
-    id: "onestop",
-    topic: "All things car",
-    heading: "Managed by your concierge",
-    image: "/illustrations/scene-fair.webp",
-    imageAlt: "A floating checklist with ticks and a magnifying glass, a price tag and a level scale beside a garage, above a parked car.",
   },
 ];

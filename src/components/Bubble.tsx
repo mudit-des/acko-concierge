@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Typography } from "@acko/typography";
 
 /**
- * One chat bubble. The customer sits right, the concierge left, as in any chat.
+ * One chat message. The customer has a bubble, on the right; the concierge speaks in plain text, on the left.
  * Composed from divs and Typography: the packages have no chat component.
  */
 export function Bubble({ from, children, animate = false }: { from: "customer" | "concierge"; children: ReactNode; animate?: boolean }) {
@@ -14,16 +14,16 @@ export function Bubble({ from, children, animate = false }: { from: "customer" |
       </Typography>
     </div>
   ) : (
-    <div className={`${enter} max-w-[88%] self-start rounded-3xl rounded-bl-md bg-brand-surface-subtle px-16 py-12`}>
-      <Typography textStyle="body-md-medium">{children}</Typography>
+    <div className={`${enter} max-w-[92%] self-start`}>
+      <Typography textStyle="body-lg-regular">{children}</Typography>
     </div>
   );
 }
 
-/** Three-dot "concierge is writing" bubble. */
+/** Three dots while Otto is writing: no bubble, just the dots on the page. */
 export function TypingBubble() {
   return (
-    <div className="reveal-up flex w-fit items-center gap-4 self-start rounded-3xl rounded-bl-md bg-brand-surface-subtle px-16 py-16" role="status" aria-label="Concierge is writing">
+    <div className="reveal-up flex w-fit items-center gap-4 py-8" role="status" aria-label="Otto is writing">
       <span className="typing-dot size-6 rounded-full bg-brand-primary500" />
       <span className="typing-dot size-6 rounded-full bg-brand-primary500 [animation-delay:.15s]" />
       <span className="typing-dot size-6 rounded-full bg-brand-primary500 [animation-delay:.3s]" />
