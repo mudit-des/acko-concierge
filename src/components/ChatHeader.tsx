@@ -70,10 +70,6 @@ export function ChatHeader({
         className="sticky top-0 bg-surface-page-primary/95 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8 backdrop-blur-md"
         style={{ zIndex: "var(--zSticky)" }}
       >
-        <Typography textStyle="helper-sm-regular" className="sr-only">
-          {CONCIERGE_NAME}
-        </Typography>
-
         {/* The brand on top, as on the chat: back on the left, help on the right */}
         <div
           className={`-mx-8 flex items-center gap-4 transition-shadow duration-200 [&_button]:text-text-primary!`}
@@ -88,12 +84,31 @@ export function ChatHeader({
           >
             Back
           </Button>
-          <img
-            src={asset("/brand/acko-drive-wide-green.svg")}
-            alt="ACKO Drive"
-            height={20}
-            className="h-20 w-auto"
-          />
+          <span className="flex min-w-0 items-center gap-8">
+            <span className="relative shrink-0" aria-hidden="true">
+              <span className="grid size-32 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
+                <Mascot
+                  mood={mood}
+                  talking={talking}
+                  size={28}
+                  className="mt-2"
+                />
+              </span>
+              <span className="absolute right-0 bottom-0 size-10 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
+            </span>
+            <Typography textStyle="label-lg-semibold" as="h1">
+              {CONCIERGE_NAME}
+            </Typography>
+            <Typography textStyle="body-md-regular" color="secondary" as="span">
+              by
+            </Typography>
+            <img
+              src={asset("/brand/acko-drive-wide-green.svg")}
+              alt="ACKO Drive"
+              height={16}
+              className="h-16 w-auto"
+            />
+          </span>
           <span className="ml-auto">
             <Button
               variant="ghost"
@@ -222,18 +237,6 @@ export function ChatHeader({
           </>
         )}
       </header>
-
-      <div className="flex items-center gap-12 px-16 pt-8 pb-4">
-        <span className="relative shrink-0" aria-hidden="true">
-          <span className="grid size-36 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
-            <Mascot mood={mood} talking={talking} size={32} className="mt-2" />
-          </span>
-          <span className="absolute right-0 bottom-0 size-10 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
-        </span>
-        <Typography textStyle="heading-lg" as="h1">
-          {CONCIERGE_NAME}
-        </Typography>
-      </div>
 
       <Drawer
         open={helpOpen}
