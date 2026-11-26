@@ -1,5 +1,6 @@
 import { CarService, Fastag, PollutionCentre, TrafficFines } from "@acko/icons";
 import type { IconType } from "../components/Icon";
+import { START_PATH } from "./booking";
 import type { IntentId } from "./chat";
 
 /**
@@ -8,11 +9,11 @@ import type { IntentId } from "./chat";
  */
 
 export const ACTIVE_BOOKING = {
-  status: "Finding your dealer",
+  status: "Complete your paperwork",
   /** The stage in progress, as an index into STAGES (0 = paperwork). */
-  stage: 1,
+  stage: 0,
   /** Where the tracker for it lives. */
-  path: "/buy-car/processing",
+  path: START_PATH,
 };
 
 export const PLATE = "KA01 AB 1234";

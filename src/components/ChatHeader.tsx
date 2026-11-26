@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "@acko/button";
 import { Drawer } from "@acko/drawer";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronUp,
-  CustomerService,
-} from "@acko/icons";
+import { ChevronDown, ChevronUp } from "@acko/icons";
 import { Typography } from "@acko/typography";
-import { asset } from "../asset";
-import { CONCIERGE_NAME, STAGES } from "../data/booking";
-import { Mascot, type MascotMood } from "./Mascot";
+import { STAGES } from "../data/booking";
+import type { MascotMood } from "./Mascot";
+import { OttoHeader } from "./OttoHeader";
 import { StepsTimeline } from "./StepsTimeline";
 
 /**
@@ -48,7 +43,9 @@ export function ChatHeader({
 
   // The bar only looks like it floats once content scrolls beneath it.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -70,56 +67,12 @@ export function ChatHeader({
         className="sticky top-0 bg-surface-page-primary/95 px-16 pt-[max(8px,env(safe-area-inset-top))] pb-8 backdrop-blur-md"
         style={{ zIndex: "var(--zSticky)" }}
       >
-        {/* The brand on top, as on the chat: back on the left, help on the right */}
-        <div
-          className={`-mx-8 flex items-center gap-4 transition-shadow duration-200 [&_button]:text-text-primary!`}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            iconOnly
-            iconLeft={<ArrowLeft aria-hidden="true" />}
-            aria-label="Back"
-            onClick={onBack}
-          >
-            Back
-          </Button>
-          <span className="flex min-w-0 items-center gap-8">
-            <span className="relative shrink-0" aria-hidden="true">
-              <span className="grid size-32 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
-                <Mascot
-                  mood={mood}
-                  talking={talking}
-                  size={28}
-                  className="mt-2"
-                />
-              </span>
-              <span className="absolute right-0 bottom-0 size-10 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
-            </span>
-            <Typography textStyle="label-lg-semibold" as="h1">
-              {CONCIERGE_NAME}
-            </Typography>
-            <Typography textStyle="body-md-regular" color="secondary" as="span">
-              by
-            </Typography>
-            <img
-              src={asset("/brand/acko-drive-wide-green.svg")}
-              alt="ACKO Drive"
-              height={16}
-              className="h-16 w-auto"
-            />
-          </span>
-          <span className="ml-auto">
-            <Button
-              variant="ghost"
-              size="sm"
-              iconLeft={<CustomerService aria-hidden="true" />}
-              onClick={() => setHelpOpen(true)}
-            >
-              Get help
-            </Button>
-          </span>
-        </div>
+        <OttoHeader
+          mood={mood}
+          talking={talking}
+          onBack={onBack}
+          onHelp={() => setHelpOpen(true)}
+        />
 
         {car && (
           <>
