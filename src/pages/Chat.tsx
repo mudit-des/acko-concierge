@@ -238,7 +238,7 @@ export default function Chat({
   const renderBody = (m: Msg) => {
     if (m.kind === "quick")
       return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 pt-8">
           <div className="flex flex-wrap gap-8">
             {(browse ? QUICK_ACTIONS : [...QUICK_ACTIONS, VIEW_ALL_ACTION]).map(
               (a) => (
@@ -463,11 +463,24 @@ export default function Chat({
           className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-16 py-8"
           aria-live="polite"
         >
-          {messages.map((m) => (
-            <div key={m.id} className="flex flex-col gap-8">
-              {renderBody(m)}
-            </div>
-          ))}
+          {messages.map((m, i) => {
+            // Two Otto messages in a row read as one thought: close the gap between them.
+            const prev = messages[i - 1];
+            const joined =
+              prev &&
+              prev.from === "bot" &&
+              prev.kind === "text" &&
+              m.from === "bot" &&
+              m.kind === "text";
+            return (
+              <div
+                key={m.id}
+                className={`flex flex-col gap-8 ${joined ? "-mt-6" : ""}`}
+              >
+                {renderBody(m)}
+              </div>
+            );
+          })}
           {typing && <TypingBubble />}
           <div ref={endRef} />
         </div>
