@@ -19,13 +19,12 @@ import { Typography } from "@acko/typography";
 import { asset } from "../asset";
 import { Bubble, TypingBubble } from "../components/Bubble";
 import { Icon, type IconType } from "../components/Icon";
-import { MenuSheet } from "../components/MenuSheet";
 import { Mascot } from "../components/Mascot";
+import { MenuSheet } from "../components/MenuSheet";
 import { RollingHint } from "../components/RollingHint";
 import {
   ASK_TEXT,
   INTENTS,
-  NOTE,
   QUICK_ACTIONS,
   SERVICES,
   VIEW_ALL_ACTION,
@@ -123,9 +122,9 @@ const PILL_ICON: Partial<Record<IntentId, IconType>> = {
 const pillStyle = (a: { urgent?: boolean; intent?: string }) =>
   a.urgent ? urgentStyle : a.intent === "allservices" ? solidStyle : sageStyle;
 
-/** `browse` shows the 2x2 "Or browse what we do" grid; /chat-2 turns it off. */
+/** `browse` shows the 2x2 "Or browse what we do" grid (/chat-1). The default has no grid but a "View all services" pill. */
 export default function Chat({
-  browse = true,
+  browse = false,
   path = "/chat",
 }: {
   browse?: boolean;
@@ -134,6 +133,7 @@ export default function Chat({
   const { search } = useLocation();
   const [messages, setMessages] = useState<Msg[]>(thread);
   const [typing, setTyping] = useState(false);
+  const [compact, setCompact] = useState(false);
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -235,6 +235,23 @@ export default function Chat({
   const showHint = !draft && !focused;
   const pill =
     "inline-flex min-h-40 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
+
+  const avatar = (size: 32 | 36) => (
+    <span className="relative shrink-0" aria-hidden="true">
+      <span
+        className="grid place-items-center overflow-hidden rounded-full bg-brand-surface-subtle"
+        style={{ width: size, height: size }}
+      >
+        <Mascot
+          mood={typing ? "thinking" : "happy"}
+          talking={typing}
+          size={size - 4}
+          className="mt-2"
+        />
+      </span>
+      <span className="absolute right-0 bottom-0 size-10 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
+    </span>
+  );
 
   const renderBody = (m: Msg) => {
     if (m.kind === "quick")
@@ -456,36 +473,55 @@ export default function Chat({
   return (
     <div className="min-h-svh bg-surface-page-secondary">
       <main className="relative mx-auto flex h-svh overflow-hidden w-full max-w-480 flex-col bg-surface-page-primary">
-        <header className="flex flex-col gap-12 px-16 pt-[max(16px,env(safe-area-inset-top))] pb-8">
-          <img
-            src={asset("/brand/acko-drive-wide-green.svg")}
-            alt="ACKO Drive"
-            height={20}
-            className="h-20 w-auto self-start"
-          />
-          <div className="flex items-center gap-12">
-            <span className="relative shrink-0" aria-hidden="true">
-              <span className="grid size-44 place-items-center overflow-hidden rounded-full bg-brand-surface-subtle">
-                <Mascot
-                  mood={typing ? "thinking" : "happy"}
-                  talking={typing}
-                  size={40}
-                  className="mt-4"
-                />
-              </span>
-              <span className="absolute right-0 bottom-0 size-12 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
-            </span>
-            <div className="flex min-w-0 flex-col">
-              <Typography textStyle="label-lg-semibold" truncate>
+        <header
+          className={`border-b px-16 pt-[max(16px,env(safe-area-inset-top))] pb-8 transition-colors duration-200 ${
+            compact ? "border-border-default-soft" : "border-transparent"
+          }`}
+        >
+          {/* One fixed-height slot: the wordmark over a large "Otto", which folds into "Otto by ACKO Drive" once the chat scrolls. */}
+          <div className="relative h-60">
+            <div
+              aria-hidden={compact}
+              className={`absolute inset-0 flex flex-col justify-between transition-opacity duration-200 motion-reduce:transition-none ${
+                compact ? "pointer-events-none opacity-0" : "opacity-100"
+              }`}
+            >
+              <img
+                src={asset("/brand/acko-drive-wide-green.svg")}
+                alt="ACKO Drive"
+                height={20}
+                className="h-20 w-auto self-start"
+              />
+              <div className="flex items-center gap-12">
+                {avatar(36)}
+                <Typography textStyle="heading-lg" as="h1">
+                  {CONCIERGE_NAME}
+                </Typography>
+              </div>
+            </div>
+            <div
+              aria-hidden={!compact}
+              className={`absolute inset-0 flex items-center gap-8 transition-opacity duration-200 motion-reduce:transition-none ${
+                compact ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+            >
+              {avatar(32)}
+              <Typography textStyle="label-lg-semibold" as="span">
                 {CONCIERGE_NAME}
               </Typography>
               <Typography
-                textStyle="helper-sm-regular"
+                textStyle="body-md-regular"
                 color="secondary"
-                truncate
+                as="span"
               >
-                {NOTE}
+                by
               </Typography>
+              <img
+                src={asset("/brand/acko-drive-wide-green.svg")}
+                alt="ACKO Drive"
+                height={16}
+                className="h-16 w-auto"
+              />
             </div>
           </div>
         </header>
@@ -493,6 +529,10 @@ export default function Chat({
         <div
           className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-16 py-8"
           aria-live="polite"
+          onScroll={(e) => {
+            const top = e.currentTarget.scrollTop;
+            setCompact((c) => (c ? top > 8 : top > 40));
+          }}
         >
           {messages.map((m) => (
             <div key={m.id} className="flex flex-col gap-8">

@@ -131,9 +131,9 @@ export default function States() {
           />
           <Item
             row={{
-              path: "/chat-2",
-              title: "Chat 2",
-              summary: "The chat without the 2x2 browse grid.",
+              path: "/chat-1",
+              title: "Chat 1",
+              summary: "The earlier chat with the 2x2 browse grid.",
             }}
           />
           <Item
@@ -141,7 +141,7 @@ export default function States() {
               path: "/chat",
               title: "Chat",
               summary:
-                "Welcome, quick actions with the ongoing link, then every service. Menu button re-posts them.",
+                "Otto welcomes you with task pills, the ongoing booking and a View all services pill. The menu button opens the sheet.",
             }}
           />
           <Item
