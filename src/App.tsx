@@ -12,6 +12,7 @@ import { navigate, useLocation } from "./router";
  * Routes
  *   /story                     the opening animation and the stories, full screen (the root address opens it)
  *   /chat                      the chat: the whole app after the stories (/home redirects here)
+ *   /chat-new                  the first-time home: Otto introduces itself, then a grid of everything it does
  *   /chat-1                    the earlier chat with the 2x2 "browse what we do" grid (/chat-2 redirects to /chat)
  *   /buy-car                   redirects to /buy-car/received
  *   /buy-car/received ...      one page per state of the car purchase (see STEPS in data/booking.ts)
@@ -42,6 +43,7 @@ export default function App() {
     path === "/story" ||
     path === "/chat" ||
     path === "/chat-1" ||
+    path === "/chat-new" ||
     path === "/states" ||
     path === "/style-guide" ||
     path === DOCUMENTS_PATH ||
@@ -59,6 +61,7 @@ export default function App() {
   if (path === "/story") return <Story />;
   if (path === "/chat") return <Chat />;
   if (path === "/chat-1") return <Chat browse path="/chat-1" />;
+  if (path === "/chat-new") return <Chat first path="/chat-new" />;
   if (path === "/states") return <States />;
   if (path === "/style-guide") return <StyleGuide />;
   return null;

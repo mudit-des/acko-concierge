@@ -19,15 +19,56 @@ interface TileData {
   position?: string;
 }
 const TILES: TileData[] = [
-  { title: "Buy a car", note: "Advice and a fair price", intent: "buy", image: "tile-buy", position: "36% 50%" },
-  { title: "Sell", note: "A verified buyer", intent: "sell", image: "tile-sell", position: "50% 40%" },
-  { title: "Exchange", note: "Trade in your old car", intent: "exchange", image: "tile-exchange", position: "50% 40%" },
-  { title: "Insurance", note: "Buy, renew, claim", intent: "insurance", image: "tile-insure" },
-  { title: "Service", note: "Free pick up and drop", intent: "service", image: "scene-servicing" },
-  { title: "Roadside help", note: "Towing, battery, tyre", intent: "emergency", image: "scene-roadside" },
+  {
+    title: "Buy a car",
+    note: "Advice and a fair price",
+    intent: "buy",
+    image: "buy",
+    position: "36% 50%",
+  },
+  {
+    title: "Sell",
+    note: "A verified buyer",
+    intent: "sell",
+    image: "sell",
+    position: "50% 40%",
+  },
+  {
+    title: "Exchange",
+    note: "Trade in your old car",
+    intent: "exchange",
+    image: "exchange",
+    position: "50% 40%",
+  },
+  {
+    title: "Insurance",
+    note: "Buy, renew, claim",
+    intent: "insurance",
+    image: "insurance",
+  },
+  {
+    title: "Service",
+    note: "Free pick up and drop",
+    intent: "service",
+    image: "service",
+  },
+  {
+    title: "Roadside help",
+    note: "Towing, battery, tyre",
+    intent: "emergency",
+    image: "roadside",
+  },
 ];
 
-export function MenuSheet({ open, onClose, onAsk }: { open: boolean; onClose: () => void; onAsk: (intent: IntentId) => void }) {
+export function MenuSheet({
+  open,
+  onClose,
+  onAsk,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAsk: (intent: IntentId) => void;
+}) {
   useEffect(() => {
     if (!open) return;
     const key = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -39,56 +80,127 @@ export function MenuSheet({ open, onClose, onAsk }: { open: boolean; onClose: ()
     onClose();
     onAsk(intent);
   };
-  const glance = GLOVE_BOX.map((g) => `${g.label} ${g.value.toLowerCase()}`).join(" · ");
+  const glance = GLOVE_BOX.map(
+    (g) => `${g.label} ${g.value.toLowerCase()}`,
+  ).join(" · ");
 
   return (
-    <div className={`absolute inset-0 z-20 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open} {...(!open && { inert: true })}>
-      <div onClick={onClose} className={`absolute inset-0 bg-black/40 transition-opacity duration-300 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`} />
+    <div
+      className={`absolute inset-0 z-20 ${open ? "" : "pointer-events-none"}`}
+      aria-hidden={!open}
+      {...(!open && { inert: true })}
+    >
+      <div
+        onClick={onClose}
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}
+      />
       <div
         role="dialog"
         aria-label="Menu"
         className={`absolute inset-x-0 bottom-0 top-[max(40px,env(safe-area-inset-top))] flex flex-col rounded-t-[28px] bg-surface-card-default px-12 pt-8 pb-[max(12px,env(safe-area-inset-bottom))] transition-transform duration-[400ms] ease-[cubic-bezier(.22,.8,.2,1)] motion-reduce:transition-none ${open ? "translate-y-0" : "translate-y-full"}`}
       >
-        <button type="button" onClick={onClose} aria-label="Close menu" className="mx-auto mb-8 block h-20 w-full">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close menu"
+          className="mx-auto mb-8 block h-20 w-full"
+        >
           <span className="mx-auto block h-4 w-36 rounded-full bg-border-default-medium" />
         </button>
-        <div className="grid min-h-0 flex-1 grid-cols-2 gap-8 overflow-y-auto" style={{ gridTemplateRows: "repeat(3, minmax(160px, 1fr)) auto" }}>
+        <div className="grid min-h-0 flex-1 grid-cols-2 content-start gap-x-8 gap-y-[40px] overflow-y-auto px-4 pt-[44px] pb-4">
           {TILES.map((t) => (
-            <button key={t.title} type="button" onClick={() => ask(t.intent)} className="flex min-h-160 flex-col overflow-hidden rounded-2xl bg-surface-page-secondary text-left active:scale-[0.98]">
-              <img src={asset(`/illustrations/${t.image}.webp`)} alt="" loading="lazy" className="min-h-0 w-full flex-1 object-cover" style={{ objectPosition: t.position }} />
-              <span className="flex flex-col px-12 py-8">
-                <Typography textStyle="label-md-semibold" as="span">
-                  {t.title}
+            <button
+              key={t.title}
+              type="button"
+              onClick={() => ask(t.intent)}
+              className="group relative flex min-h-[104px] flex-col items-center rounded-3xl border px-8 pt-[52px] pb-12 text-center transition-transform active:scale-[0.97]"
+              style={{
+                backgroundColor: "var(--brandPrimary100)",
+                borderColor: "var(--brandPrimary200)",
+              }}
+            >
+              <img
+                src={asset(`/icons/${t.image}.webp`)}
+                alt=""
+                loading="lazy"
+                className="pointer-events-none absolute -top-[36px] left-1/2 size-[88px] -translate-x-1/2 object-contain transition-transform duration-200 group-active:-translate-y-2 motion-reduce:transition-none"
+              />
+              <Typography
+                textStyle="label-md-semibold"
+                as="span"
+                style={{ color: "var(--brandPrimary850)" }}
+              >
+                {t.title}
+              </Typography>
+              {t.note && (
+                <Typography
+                  textStyle="helper-sm-regular"
+                  as="span"
+                  style={{ color: "var(--brandPrimary700)" }}
+                  truncate
+                >
+                  {t.note}
                 </Typography>
-                {t.note && (
-                  <Typography textStyle="helper-sm-regular" color="secondary" as="span" truncate>
-                    {t.note}
-                  </Typography>
-                )}
-              </span>
+              )}
             </button>
           ))}
 
-          <button type="button" onClick={() => ask("glovebox")} className="col-span-2 flex min-h-88 items-stretch gap-12 overflow-hidden rounded-2xl bg-surface-page-secondary pr-16 text-left active:scale-[0.98]">
-            <img src={asset("/illustrations/scene-fair.webp")} alt="" loading="lazy" className="h-full w-120 shrink-0 object-cover" />
-            <span className="flex min-w-0 flex-1 flex-col justify-center">
-              <Typography textStyle="label-md-semibold" as="span">
+          <button
+            type="button"
+            onClick={() => ask("glovebox")}
+            className="group relative col-span-2 mt-[10px] flex min-h-[76px] items-center gap-12 rounded-3xl border pr-16 pl-[108px] text-left transition-transform active:scale-[0.98]"
+            style={{
+              backgroundColor: "var(--brandPrimary100)",
+              borderColor: "var(--brandPrimary200)",
+            }}
+          >
+            <img
+              src={asset("/icons/glovebox.webp")}
+              alt=""
+              loading="lazy"
+              className="pointer-events-none absolute -top-[22px] left-12 size-[88px] object-contain"
+            />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <Typography
+                textStyle="label-md-semibold"
+                as="span"
+                style={{ color: "var(--brandPrimary850)" }}
+              >
                 Glove box
               </Typography>
-              <Typography textStyle="helper-sm-regular" color="secondary" as="span" truncate>
+              <Typography
+                textStyle="helper-sm-regular"
+                as="span"
+                style={{ color: "var(--brandPrimary700)" }}
+                truncate
+              >
                 {glance}
               </Typography>
             </span>
-            <Typography textStyle="body-lg-regular" color="secondary" as="span" className="self-center" aria-hidden="true">
+            <Typography
+              textStyle="body-lg-regular"
+              color="secondary"
+              as="span"
+              aria-hidden="true"
+            >
               ›
             </Typography>
           </button>
         </div>
-        <button type="button" onClick={() => ask("allservices")} className="mt-8 flex min-h-48 w-full items-center justify-center gap-4 rounded-full active:opacity-70">
+        <button
+          type="button"
+          onClick={() => ask("allservices")}
+          className="mt-8 flex min-h-48 w-full items-center justify-center gap-4 rounded-full active:opacity-70"
+        >
           <Typography textStyle="label-md-semibold" as="span">
             View all services
           </Typography>
-          <Typography textStyle="body-lg-regular" color="secondary" as="span" aria-hidden="true">
+          <Typography
+            textStyle="body-lg-regular"
+            color="secondary"
+            as="span"
+            aria-hidden="true"
+          >
             ›
           </Typography>
         </button>

@@ -1,5 +1,5 @@
 /**
- * Home carousel copy, adapted from the concierge deck.
+ * Home carousel copy, adapted from Otto deck.
  * All of it is placeholder until the business confirms the promises and the partner list.
  */
 
@@ -16,8 +16,8 @@ export const PILLS: { label: string; /** drift offsets in px, and duration in se
 ];
 
 /**
- * The four things a customer can hand to the concierge: a question the customer is asking themselves,
- * then the concierge's promise. Copy comes from the business and is final unless noted.
+ * The four things a customer can hand to Otto: a question the customer is asking themselves,
+ * then Otto's promise. Copy comes from the business and is final unless noted.
  */
 export interface UseCase {
   id: string;
@@ -37,27 +37,27 @@ export const USE_CASES: UseCase[] = [
     topic: "Buying a car?",
     heading: "Leave the research and negotiations to us!",
     image: "/illustrations/scene-buying.webp",
-    imageAlt: "In front of a glass showroom the concierge shakes hands with a smiling dealer holding a ticked clipboard, under a floating ticked price tag, while the customer relaxes on a bench with a cup of tea beside a new car with a ribbon bow.",
+    imageAlt: "In front of a glass showroom Otto shakes hands with a smiling dealer holding a ticked clipboard, under a floating ticked price tag, while the customer relaxes on a bench with a cup of tea beside a new car with a ribbon bow.",
   },
   {
     id: "servicing",
     topic: "Need it serviced?",
     heading: "Free pick up and drop, your personal valet",
     image: "/illustrations/scene-servicing.webp",
-    imageAlt: "The concierge holds out a car key beside a sage hatchback. A glowing dotted route loops from a house, where the customer waves with a cup, to a garage and back.",
+    imageAlt: "Otto holds out a car key beside a sage hatchback. A glowing dotted route loops from a house, where the customer waves with a cup, to a garage and back.",
   },
   {
     id: "trouble",
     topic: "Something goes wrong?",
     heading: "Roadside assistance when you want it",
     image: "/illustrations/scene-roadside.webp",
-    imageAlt: "At dusk the concierge waves beside a sage hatchback that has pulled over with its hazard lights on, holding up a phone with a ticked chat bubble while a tow truck arrives.",
+    imageAlt: "At dusk Otto waves beside a sage hatchback that has pulled over with its hazard lights on, holding up a phone with a ticked chat bubble while a tow truck arrives.",
   },
   {
     id: "selling",
     topic: "Looking to sell or exchange?",
     heading: "We've got you covered!",
     image: "/illustrations/scene-sellexchange.webp",
-    imageAlt: "Under a soft protective shield, an older car and a newer sage car with a ribbon bow, joined by a swap arrow, while the concierge shakes hands with a buyer and holds a ticked document.",
+    imageAlt: "Under a soft protective shield, an older car and a newer sage car with a ribbon bow, joined by a swap arrow, while Otto shakes hands with a buyer and holds a ticked document.",
   },
 ];

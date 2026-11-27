@@ -47,7 +47,7 @@ export function HelpButton() {
       >
         <div className="pb-8">
           <Typography textStyle="body-md-regular" color="secondary">
-            You can also keep going here. Your concierge will see everything
+            You can also keep going here. Otto will see everything
             you've done so far.
           </Typography>
         </div>

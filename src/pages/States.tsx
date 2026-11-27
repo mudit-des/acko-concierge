@@ -131,6 +131,14 @@ export default function States() {
           />
           <Item
             row={{
+              path: "/chat-new",
+              title: "Chat, first time",
+              summary:
+                "A new user's home: Otto introduces itself, then a grid of every action.",
+            }}
+          />
+          <Item
+            row={{
               path: "/chat-1",
               title: "Chat 1",
               summary: "The earlier chat with the 2x2 browse grid.",

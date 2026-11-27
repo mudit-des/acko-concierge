@@ -250,7 +250,7 @@ export default function BuyCar({
         {step > 0 && (
           <section
             className="flex flex-col gap-24 px-16 pt-24"
-            aria-label="Updates from your concierge"
+            aria-label="Updates from Otto"
           >
             {STEPS.slice(1, step + 1).map((s, idx) => {
               const i = idx + 1;

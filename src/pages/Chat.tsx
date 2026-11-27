@@ -1,4 +1,5 @@
 import {
+  useMemo,
   useCallback,
   useEffect,
   useRef,
@@ -24,6 +25,7 @@ import { MenuSheet } from "../components/MenuSheet";
 import { RollingHint } from "../components/RollingHint";
 import {
   ASK_TEXT,
+  EMERGENCY_ICON,
   INTENTS,
   QUICK_ACTIONS,
   SERVICES,
@@ -43,7 +45,7 @@ import { navigate, useLocation } from "../router";
  * The thread lives at module level, so leaving for the tracker and coming back keeps it.
  */
 
-type Kind = "text" | "quick" | "services";
+type Kind = "text" | "quick" | "services" | "grid";
 interface Msg {
   id: number;
   from: "bot" | "user";
@@ -57,12 +59,26 @@ const INTRO: Omit<Msg, "id">[] = [
   {
     from: "bot",
     kind: "text",
-    text: "Hi, I'm Otto, your concierge. I'm here to help you out. What do you need right now?",
+    text: "Hi, I'm Otto, your car companion. I'm here to help you out. What do you need right now?",
   },
   { from: "bot", kind: "quick" },
 ];
-let thread: Msg[] = [];
-let introStep = 0;
+/** What a first-time visitor sees: Otto introduces itself, then every action as a grid. */
+const INTRO_FIRST: Omit<Msg, "id">[] = [
+  {
+    from: "bot",
+    kind: "text",
+    text: "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to.",
+  },
+  {
+    from: "bot",
+    kind: "text",
+    text: "Here's how I can help you, or just ask away in chat.",
+  },
+  { from: "bot", kind: "grid" },
+];
+/** One thread per address, so the first-time and returning screens never mix. */
+const STORES: Record<string, { thread: Msg[]; introStep: number }> = {};
 const reduceMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const clearChips = (m: Msg[]) =>
@@ -124,21 +140,29 @@ const pillStyle = (a: { urgent?: boolean; intent?: string }) =>
 /** `browse` shows the 2x2 "Or browse what we do" grid (/chat-1). The default has no grid but a "View all services" pill. */
 export default function Chat({
   browse = false,
+  first = false,
   path = "/chat",
 }: {
   browse?: boolean;
+  first?: boolean;
   path?: string;
 }) {
   const { search } = useLocation();
-  const [messages, setMessages] = useState<Msg[]>(thread);
+  const store = useMemo(
+    () => (STORES[path] ??= { thread: [], introStep: 0 }),
+    [path],
+  );
+  const intro = first ? INTRO_FIRST : INTRO;
+  const [messages, setMessages] = useState<Msg[]>(store.thread);
   const [typing, setTyping] = useState(false);
+  const [picked, setPicked] = useState<IntentId | null>(null);
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    thread = messages;
-  }, [messages]);
+    store.thread = messages;
+  }, [messages, store]);
   useEffect(() => {
     endRef.current?.scrollIntoView({
       behavior: reduceMotion() ? "auto" : "smooth",
@@ -172,11 +196,11 @@ export default function Chat({
 
   // The welcome plays once; leaving mid-way resumes where it stopped.
   useEffect(() => {
-    if (introStep >= INTRO.length) return;
-    return post(INTRO.slice(introStep), () => {
-      introStep++;
+    if (store.introStep >= intro.length) return;
+    return post(intro.slice(store.introStep), () => {
+      store.introStep++;
     });
-  }, [post]);
+  }, [post, store, intro]);
 
   const reply = useCallback(
     (intent: IntentId) => {
@@ -235,6 +259,84 @@ export default function Chat({
     "inline-flex min-h-32 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
 
   const renderBody = (m: Msg) => {
+    if (m.kind === "grid") {
+      const items = [
+        {
+          title: "Emergency",
+          intent: "emergency" as IntentId,
+          image: EMERGENCY_ICON,
+          urgent: true,
+        },
+        ...SERVICES.map((r) => ({
+          title: r.title,
+          intent: r.intent,
+          image: r.image,
+          urgent: false,
+        })),
+      ];
+      return (
+        <div className="flex flex-col gap-20 pt-12">
+          {/* Icons on pale sage plates, no cards. Emergency gets a soft pink plate and a red label. */}
+          <div className="grid grid-cols-3 gap-x-8 gap-y-20">
+            {items.map((i) => {
+              const selected = picked === i.intent;
+              return (
+                <button
+                  key={i.title}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    setPicked(i.intent);
+                    say(ASK_TEXT[i.intent], i.intent);
+                  }}
+                  className="group flex flex-col items-center gap-10 rounded-3xl text-center outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-selection-default"
+                >
+                  <span
+                    className={`grid size-[84px] place-items-center rounded-full transition-[transform,background-color,box-shadow] duration-200 group-active:scale-95 motion-reduce:transition-none ${
+                      i.urgent
+                        ? "[@media(hover:hover)]:group-hover:bg-[color-mix(in_srgb,var(--textStatusError)_16%,white)]"
+                        : "[@media(hover:hover)]:group-hover:bg-[var(--brandPrimary150)]"
+                    }`}
+                    style={{
+                      backgroundColor: i.urgent
+                        ? "color-mix(in srgb, var(--textStatusError) 10%, white)"
+                        : "var(--brandPrimary100)",
+                      boxShadow: selected
+                        ? `0 0 0 3px var(--surfacePagePrimary), 0 0 0 5px ${i.urgent ? "var(--textStatusError)" : "var(--brandPrimary600)"}`
+                        : "none",
+                    }}
+                  >
+                    <img
+                      src={i.image}
+                      alt=""
+                      loading="lazy"
+                      className="pointer-events-none size-[60px] object-contain transition-transform duration-200 [@media(hover:hover)]:group-hover:scale-105 motion-reduce:transition-none"
+                    />
+                  </span>
+                  <Typography
+                    textStyle="label-md-semibold"
+                    as="span"
+                    className="min-h-[36px] px-2 leading-[18px] tracking-[-0.005em]"
+                    style={{
+                      color: i.urgent ? "var(--textStatusError)" : undefined,
+                    }}
+                  >
+                    {i.title}
+                  </Typography>
+                </button>
+              );
+            })}
+          </div>
+          <Typography
+            textStyle="helper-sm-regular"
+            color="secondary"
+            align="center"
+          >
+            AI-assisted. A person can step in any time.
+          </Typography>
+        </div>
+      );
+    }
     if (m.kind === "quick")
       return (
         <div className="flex flex-col gap-8 pt-8">
@@ -391,7 +493,7 @@ export default function Chat({
                     src={r.image}
                     alt=""
                     loading="lazy"
-                    className="size-full object-cover"
+                    className="size-full object-contain"
                   />
                 ) : (
                   r.icon && <Icon icon={r.icon} size={24} />
