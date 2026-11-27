@@ -91,11 +91,6 @@ const urgentStyle = {
   borderColor: "var(--borderStatusError)",
   color: "var(--textStatusError)",
 };
-const solidStyle = {
-  backgroundColor: "var(--brandPrimary600)",
-  borderColor: "var(--brandPrimary600)",
-  color: "var(--brandPrimaryWhite)",
-};
 const BENTO = [
   {
     title: "Buy a car",
@@ -135,7 +130,7 @@ const PILL_ICON: Partial<Record<IntentId, IconType>> = {
 const pillImage = (intent: IntentId) =>
   GRID_ITEMS.find((g) => g.intent === intent)?.image;
 const pillStyle = (a: { urgent?: boolean; intent?: string }) =>
-  a.urgent ? urgentStyle : a.intent === "allservices" ? solidStyle : sageStyle;
+  a.urgent ? urgentStyle : sageStyle;
 
 /** `browse` shows the 2x2 "Or browse what we do" grid (/chat-1). The default has no grid but a "View all services" pill. */
 export default function Chat({
