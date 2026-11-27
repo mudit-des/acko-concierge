@@ -29,7 +29,6 @@ const STORY_MS = 5500;
 const WELCOME_MS = 6500;
 const WELCOME_GATHER_MS = 2200;
 const HOLD_MS = 220;
-const DARK = "#08160e";
 /** Story 0 is plain and light; the pictures sit on dark green. */
 const LIGHT = "#f5f7f3";
 /** The pictures fade out at the bottom, so they melt into the dark instead of ending in a hard edge. */
@@ -108,7 +107,7 @@ export default function Story() {
 
   const story = index > 0 ? USE_CASES[index - 1] : null;
   // Story 0 has a light top, so its timer bars and buttons are dark; the pictures have darker tops, so theirs are white.
-  const lightTop = index === 0;
+  const lightTop = true;
   const running = !reduce && tabVisible && !paused;
 
   return (
@@ -116,7 +115,7 @@ export default function Story() {
       <main
         className="relative mx-auto h-svh w-full max-w-480 overflow-hidden"
         style={{
-          background: index === 0 ? LIGHT : DARK,
+          background: LIGHT,
           transition: "background-color 350ms ease",
         }}
         aria-roledescription="carousel"
@@ -150,17 +149,6 @@ export default function Story() {
               }}
             />
           ))}
-          {/* Dark gradient that the words sit on */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-[62%]"
-            style={{
-              background: `linear-gradient(to top, ${DARK} 0%, rgba(8,22,14,0.94) 30%, rgba(8,22,14,0.62) 62%, rgba(8,22,14,0) 100%)`,
-              opacity: lightTop ? 0 : 1,
-              transition: "opacity 350ms ease",
-            }}
-            aria-hidden="true"
-          />
-
           {/* Tap and hold area */}
           <div
             className="absolute inset-x-0 top-64 bottom-0 touch-none select-none"
@@ -175,13 +163,13 @@ export default function Story() {
           {story ? (
             <div
               key={story.id}
-              className="pointer-events-none absolute inset-x-0 bottom-[max(48px,env(safe-area-inset-bottom))] flex flex-col gap-8 px-20 text-white opacity-70"
+              className="pointer-events-none absolute inset-x-0 bottom-[max(48px,env(safe-area-inset-bottom))] flex flex-col gap-8 px-20 text-text-primary opacity-70"
             >
               {story.topic && (
                 <Typography
                   textStyle="label-lg-semibold"
-                  color="static"
-                  className="reveal-up opacity-85"
+                  className="reveal-up text-text-secondary"
+                  style={{ color: "inherit" }}
                 >
                   {story.topic}
                 </Typography>
@@ -189,9 +177,8 @@ export default function Story() {
               <Typography
                 textStyle="heading-xl"
                 as="h1"
-                color="static"
                 className="reveal-up text-balance"
-                style={{ ...TITLE, animationDelay: "120ms" }}
+                style={{ ...TITLE, color: "inherit", animationDelay: "120ms" }}
               >
                 {story.heading}
               </Typography>
@@ -212,7 +199,7 @@ export default function Story() {
               >
                 <span className="sr-only">{`Story ${i + 1} of ${TOTAL}`}</span>
                 {i < index || (reduce && i === index) ? (
-                  <span className="absolute inset-0 bg-white" />
+                  <span className="absolute inset-0 bg-text-primary" />
                 ) : (
                   i === index && (
                     <span
