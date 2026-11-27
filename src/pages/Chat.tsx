@@ -1,14 +1,6 @@
-import {
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-} from "react";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
-  ArrowUp,
   CarAccident,
   CarService,
   Coverage,
@@ -22,6 +14,8 @@ import { Bubble, TypingBubble } from "../components/Bubble";
 import { Icon, type IconType } from "../components/Icon";
 import { OttoHeader } from "../components/OttoHeader";
 import { MenuSheet } from "../components/MenuSheet";
+import { Composer } from "../components/Composer";
+import { ServiceGrid } from "../components/ServiceGrid";
 import {
   ASK_TEXT,
   INTENTS,
@@ -33,6 +27,7 @@ import {
   type IntentId,
 } from "../data/chat";
 import {
+  GRID_ITEMS,
   arrangeGrid,
   getStage,
   greetingFor,
@@ -69,11 +64,7 @@ const INTRO: Omit<Msg, "id">[] = [
 ];
 /** What a first-time visitor sees: Otto's greeting (it varies with the customer's stage), then every action as a grid. */
 const introFor = (stage: CustomerStage | null): Omit<Msg, "id">[] => [
-  ...greetingFor(stage).map((text) => ({
-    from: "bot" as const,
-    kind: "text" as const,
-    text,
-  })),
+  { from: "bot", kind: "text", text: greetingFor(stage) },
   { from: "bot", kind: "grid" },
 ];
 /** One thread per address, so the first-time and returning screens never mix. */
@@ -133,6 +124,9 @@ const PILL_ICON: Partial<Record<IntentId, IconType>> = {
   glovebox: PolicyDocument,
   allservices: Menu02,
 };
+/** The 3D icon for a pill, where one exists; otherwise the plain icon is used. */
+const pillImage = (intent: IntentId) =>
+  GRID_ITEMS.find((g) => g.intent === intent)?.image;
 const pillStyle = (a: { urgent?: boolean; intent?: string }) =>
   a.urgent ? urgentStyle : a.intent === "allservices" ? solidStyle : sageStyle;
 
@@ -159,7 +153,6 @@ export default function Chat({
   const [messages, setMessages] = useState<Msg[]>(store.thread);
   const [typing, setTyping] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -248,91 +241,22 @@ export default function Chat({
     if (chip.to) return navigate(chip.to);
     say(chip.label, chip.intent ?? "fallback");
   };
-  const send = (e: FormEvent) => {
-    e.preventDefault();
-    const text = draft.trim();
-    if (!text) return;
-    setDraft("");
-    say(text, matchIntent(text));
-  };
 
   const pill =
     "inline-flex min-h-32 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
 
   const renderBody = (m: Msg) => {
     if (m.kind === "grid") {
-      const items = arrangeGrid(stage);
       return (
         <div className="flex flex-col gap-20 pt-12">
-          {/* Icons on pale sage plates, no cards. Emergency is pink with a red label and a soft halo. */}
-          <div className="grid grid-cols-3 gap-x-8 gap-y-20">
-            {items.map((i) => {
-              const urgent = i.id === "emergency";
-              const selected = picked === i.id;
-              const tone = urgent
-                ? "var(--textStatusError)"
-                : "var(--brandPrimary600)";
-              const ring =
-                selected && !urgent
-                  ? `0 0 0 3px var(--surfacePagePrimary), 0 0 0 5px ${tone}`
-                  : "none";
-              return (
-                <button
-                  key={i.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => {
-                    setPicked(i.id);
-                    say(ASK_TEXT[i.intent], i.intent);
-                  }}
-                  className="group flex min-h-[44px] flex-col items-center gap-10 rounded-3xl text-center outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-selection-default"
-                >
-                  <span
-                    className={`grid size-[84px] place-items-center rounded-full transition-[transform,background-color,box-shadow] duration-200 ease-out group-active:scale-[0.96] motion-reduce:transition-none motion-reduce:group-active:scale-100 ${
-                      urgent
-                        ? "[@media(hover:hover)]:group-hover:bg-[color-mix(in_srgb,var(--textStatusError)_16%,white)]"
-                        : "[@media(hover:hover)]:group-hover:bg-[var(--brandPrimary150)]"
-                    }`}
-                    style={{
-                      backgroundColor: urgent
-                        ? `color-mix(in srgb, var(--textStatusError) ${selected ? 18 : 10}%, white)`
-                        : "var(--brandPrimary100)",
-                      boxShadow: ring,
-                    }}
-                  >
-                    <img
-                      src={i.image}
-                      alt=""
-                      decoding="async"
-                      style={{
-                        width: Math.round(60 * (i.fit ?? 1)),
-                        height: Math.round(60 * (i.fit ?? 1)),
-                      }}
-                      className="pointer-events-none max-w-none object-contain transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                    />
-                  </span>
-                  <Typography
-                    textStyle="label-md-semibold"
-                    as="span"
-                    align="center"
-                    className="px-2 leading-[18px] tracking-[-0.005em] transition-colors duration-200 motion-reduce:transition-none"
-                    style={{
-                      color: urgent ? "var(--textStatusError)" : undefined,
-                    }}
-                  >
-                    {i.label}
-                  </Typography>
-                </button>
-              );
-            })}
-          </div>
-          <Typography
-            textStyle="helper-sm-regular"
-            color="secondary"
-            align="center"
-          >
-            AI-assisted. A person can step in any time.
-          </Typography>
+          <ServiceGrid
+            items={arrangeGrid(stage)}
+            picked={picked}
+            onPick={(i) => {
+              setPicked(i.id);
+              say(ASK_TEXT[i.intent], i.intent);
+            }}
+          />
         </div>
       );
     }
@@ -349,11 +273,19 @@ export default function Chat({
                   className={pill}
                   style={pillStyle(a)}
                 >
-                  {PILL_ICON[a.intent] && (
-                    <Icon icon={PILL_ICON[a.intent]!} size={16} />
+                  {pillImage(a.intent) ? (
+                    <img
+                      src={pillImage(a.intent)}
+                      alt=""
+                      className="pointer-events-none size-[22px] object-contain"
+                    />
+                  ) : (
+                    PILL_ICON[a.intent] && (
+                      <Icon icon={PILL_ICON[a.intent]!} size={16} />
+                    )
                   )}
                   <Typography
-                    textStyle="label-md-semibold"
+                    textStyle="label-md-medium"
                     as="span"
                     style={{ color: "inherit" }}
                   >
@@ -462,7 +394,7 @@ export default function Chat({
                       />
                     </span>
                     <span className="flex flex-col gap-2 px-4 pb-4">
-                      <Typography textStyle="label-lg-semibold" as="h3">
+                      <Typography textStyle="label-lg-medium" as="h3">
                         {r.title}
                       </Typography>
                       <Typography textStyle="body-md-regular" color="secondary">
@@ -486,20 +418,20 @@ export default function Chat({
               onClick={() => say(ASK_TEXT[r.intent], r.intent)}
               className="flex min-h-64 items-center gap-12 rounded-2xl p-8 text-left active:bg-surface-page-secondary"
             >
-              <span className="grid size-48 shrink-0 place-items-center overflow-hidden rounded-xl bg-surface-page-secondary text-text-primary">
+              <span className="grid size-[52px] shrink-0 place-items-center overflow-hidden rounded-full bg-[var(--brandPrimary100)] text-text-primary">
                 {r.image ? (
                   <img
                     src={r.image}
                     alt=""
                     loading="lazy"
-                    className="size-full object-contain"
+                    className="size-[38px] object-contain"
                   />
                 ) : (
                   r.icon && <Icon icon={r.icon} size={24} />
                 )}
               </span>
               <span className="flex min-w-0 flex-1 flex-col">
-                <Typography textStyle="label-lg-semibold" as="span">
+                <Typography textStyle="label-lg-medium" as="span">
                   {r.title}
                 </Typography>
                 <Typography
@@ -538,7 +470,7 @@ export default function Chat({
                 style={pillStyle(c)}
               >
                 <Typography
-                  textStyle="label-md-semibold"
+                  textStyle="label-md-medium"
                   as="span"
                   style={{ color: "inherit" }}
                 >
@@ -585,57 +517,10 @@ export default function Chat({
           <div ref={endRef} />
         </div>
 
-        <form
-          onSubmit={send}
-          className="flex items-center gap-8 px-16 pt-8 pb-[max(12px,env(safe-area-inset-bottom))]"
-        >
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Show the menu"
-            className="grid size-48 shrink-0 place-items-center rounded-full border border-border-default-strong bg-white text-text-primary shadow-s transition-transform active:scale-[0.96] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            <span className="inline-flex size-24" aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                className="size-full"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              >
-                <rect x="4" y="4" width="6.5" height="6.5" rx="1.8" />
-                <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8" />
-                <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8" />
-                <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8" />
-              </svg>
-            </span>
-          </button>
-          <div className="relative flex min-w-0 flex-1 items-center gap-8 rounded-full border border-border-default-strong bg-white py-3 pr-3 pl-20 shadow-m transition-colors duration-200 focus-within:border-[var(--brandPrimary600)] motion-reduce:transition-none">
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Ask Otto anything..."
-              aria-label="Message Otto"
-              enterKeyHint="send"
-              className="h-40 min-w-0 flex-1 bg-transparent text-[16px] leading-[24px] text-text-primary outline-none placeholder:text-text-secondary"
-            />
-            <button
-              type="submit"
-              aria-label="Send"
-              disabled={!draft.trim()}
-              className="grid size-40 shrink-0 place-items-center rounded-full text-white transition-opacity disabled:opacity-55"
-              style={{ backgroundColor: "var(--brandPrimary600)" }}
-            >
-              <span
-                className="inline-flex size-20 [&_svg]:size-full"
-                aria-hidden="true"
-              >
-                <ArrowUp />
-              </span>
-            </button>
-          </div>
-        </form>
+        <Composer
+          onSend={(text) => say(text, matchIntent(text))}
+          onMenu={() => setMenuOpen(true)}
+        />
         <MenuSheet
           open={menuOpen}
           onClose={() => setMenuOpen(false)}

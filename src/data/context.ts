@@ -22,58 +22,58 @@ export interface GridItem {
 export const GRID_ITEMS: GridItem[] = [
   {
     id: "emergency",
-    label: "Emergency help",
+    label: "Emergency",
     intent: "emergency",
     image: asset("/icons/emergency.webp"),
   },
   {
     id: "buy",
-    label: "Buy a car",
+    label: "Buy",
     intent: "buy",
     image: asset("/icons/buy.webp"),
     fit: 1.12,
   },
   {
     id: "sell",
-    label: "Sell your car",
+    label: "Sell",
     intent: "sell",
     image: asset("/icons/sell.webp"),
   },
   {
     id: "exchange",
-    label: "Exchange your car",
+    label: "Exchange",
     intent: "exchange",
     image: asset("/icons/exchange.webp"),
     fit: 1.08,
   },
   {
     id: "insure",
-    label: "Insure your car",
+    label: "Insurance",
     intent: "insurance",
     image: asset("/icons/insurance.webp"),
   },
   {
     id: "service",
-    label: "Service & repairs",
+    label: "Service",
     intent: "service",
     image: asset("/icons/service.webp"),
   },
   {
     id: "roadside",
-    label: "Roadside assistance",
+    label: "Roadside",
     intent: "roadside",
     image: asset("/icons/roadside.webp"),
     fit: 1.1,
   },
   {
     id: "claim",
-    label: "Track a claim",
+    label: "Claims",
     intent: "claim",
     image: asset("/icons/claims.webp"),
   },
   {
     id: "documents",
-    label: "Car documents",
+    label: "Documents",
     intent: "glovebox",
     image: asset("/icons/glovebox.webp"),
   },
@@ -110,35 +110,25 @@ const PRIORITY: Record<CustomerStage, string[]> = {
 
 /** Labels that read better for a given stage. Anything not listed keeps its default label. */
 const LABELS: Partial<Record<CustomerStage, Record<string, string>>> = {
-  owner: { insure: "Renew insurance" },
-  "active-claim": { claim: "Track your claim" },
+  owner: { insure: "Renew policy" },
+  "active-claim": { claim: "Track claim" },
 };
 
 /** Otto's opening lines, one set per stage. The first entry (no stage) is the default introduction. */
-const GREETINGS: Record<CustomerStage | "default", string[]> = {
-  default: [
-    "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to.",
-    "Here's how I can help you, or just ask away in chat.",
-  ],
-  "new-owner": [
-    "Congratulations on the new car! Let's get it sorted.",
-    "Insurance, registration and your car documents are the best places to start, or just ask away in chat.",
-  ],
-  owner: [
-    "Welcome back. Let's keep your car in good shape.",
-    "I can book a service, sort a repair or renew your insurance, or just ask away in chat.",
-  ],
-  "active-claim": [
-    "I'm keeping an eye on your claim.",
-    "Track it here for the latest, or ask me anything in chat.",
-  ],
-  emergency: [
-    "I'm here. Are you and everyone with you safe?",
-    "Tap Emergency help and I'll get someone to you straight away.",
-  ],
+const GREETINGS: Record<CustomerStage | "default", string> = {
+  default:
+    "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to. Here's how I can help you, or just ask away in chat.",
+  "new-owner":
+    "Congratulations on the new car! Let's get it sorted. Insurance, registration and your car documents are the best places to start, or just ask away in chat.",
+  owner:
+    "Welcome back. Let's keep your car in good shape. I can book a service, sort a repair or renew your insurance, or just ask away in chat.",
+  "active-claim":
+    "I'm keeping an eye on your claim. Track it here for the latest, or ask me anything in chat.",
+  emergency:
+    "I'm here. Are you and everyone with you safe? Tap Emergency help and I'll get someone to you straight away.",
 };
 
-export function greetingFor(stage: CustomerStage | null): string[] {
+export function greetingFor(stage: CustomerStage | null): string {
   return GREETINGS[stage ?? "default"];
 }
 

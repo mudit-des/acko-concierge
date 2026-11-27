@@ -1,64 +1,14 @@
 import { useEffect } from "react";
 import { Typography } from "@acko/typography";
-import { asset } from "../asset";
 import type { IntentId } from "../data/chat";
-import { GLOVE_BOX } from "../data/home";
+import { GRID_ITEMS } from "../data/context";
+import { ServiceGrid } from "./ServiceGrid";
 
 /*
- * The menu: a bento sheet that slides up over the chat from the menu button. Every service is a tile with
- * its illustration, then the glove box with its live statuses, then a link to the full list.
- * Tapping a tile closes the sheet and sends that message into the chat. (Emergency and the ongoing booking
- * live in the thread itself, so they are not repeated here.)
+ * The menu: a sheet that slides up over the chat from the menu button. It shows the same circular icon grid
+ * as the home screen (one component, so they never drift apart), then a link to the full list.
+ * Tapping an item closes the sheet and sends that message into the chat.
  */
-
-interface TileData {
-  title: string;
-  note?: string;
-  intent: IntentId;
-  image: string;
-  position?: string;
-}
-const TILES: TileData[] = [
-  {
-    title: "Buy a car",
-    note: "Advice and a fair price",
-    intent: "buy",
-    image: "buy",
-    position: "36% 50%",
-  },
-  {
-    title: "Sell your car",
-    note: "A verified buyer",
-    intent: "sell",
-    image: "sell",
-    position: "50% 40%",
-  },
-  {
-    title: "Exchange your car",
-    note: "Trade in your old car",
-    intent: "exchange",
-    image: "exchange",
-    position: "50% 40%",
-  },
-  {
-    title: "Insure your car",
-    note: "Buy, renew, claim",
-    intent: "insurance",
-    image: "insurance",
-  },
-  {
-    title: "Service & repairs",
-    note: "Free pick up and drop",
-    intent: "service",
-    image: "service",
-  },
-  {
-    title: "Roadside assistance",
-    note: "Towing, battery, tyre",
-    intent: "roadside",
-    image: "roadside",
-  },
-];
 
 export function MenuSheet({
   open,
@@ -80,9 +30,6 @@ export function MenuSheet({
     onClose();
     onAsk(intent);
   };
-  const glance = GLOVE_BOX.map(
-    (g) => `${g.label} ${g.value.toLowerCase()}`,
-  ).join(" · ");
 
   return (
     <div
@@ -97,7 +44,7 @@ export function MenuSheet({
       <div
         role="dialog"
         aria-label="Menu"
-        className={`absolute inset-x-0 bottom-0 top-[max(40px,env(safe-area-inset-top))] flex flex-col rounded-t-[28px] bg-surface-card-default px-12 pt-8 pb-[max(12px,env(safe-area-inset-bottom))] transition-transform duration-[400ms] ease-[cubic-bezier(.22,.8,.2,1)] motion-reduce:transition-none ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`absolute inset-x-0 bottom-0 flex max-h-[calc(100%-max(40px,env(safe-area-inset-top)))] flex-col rounded-t-[28px] bg-surface-card-default px-16 pt-8 pb-[max(12px,env(safe-area-inset-bottom))] transition-transform duration-[400ms] ease-[cubic-bezier(.22,.8,.2,1)] motion-reduce:transition-none ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         <button
           type="button"
@@ -107,90 +54,13 @@ export function MenuSheet({
         >
           <span className="mx-auto block h-4 w-36 rounded-full bg-border-default-medium" />
         </button>
-        <div className="grid min-h-0 flex-1 grid-cols-2 content-start gap-x-8 gap-y-[40px] overflow-y-auto px-4 pt-[44px] pb-4">
-          {TILES.map((t) => (
-            <button
-              key={t.title}
-              type="button"
-              onClick={() => ask(t.intent)}
-              className="group relative flex min-h-[104px] flex-col items-center rounded-3xl border px-8 pt-[52px] pb-12 text-center transition-transform active:scale-[0.97]"
-              style={{
-                backgroundColor: "var(--brandPrimary100)",
-                borderColor: "var(--brandPrimary200)",
-              }}
-            >
-              <img
-                src={asset(`/icons/${t.image}.webp`)}
-                alt=""
-                loading="lazy"
-                className="pointer-events-none absolute -top-[36px] left-1/2 size-[88px] -translate-x-1/2 object-contain transition-transform duration-200 group-active:-translate-y-2 motion-reduce:transition-none"
-              />
-              <Typography
-                textStyle="label-md-semibold"
-                as="span"
-                style={{ color: "var(--brandPrimary850)" }}
-              >
-                {t.title}
-              </Typography>
-              {t.note && (
-                <Typography
-                  textStyle="helper-sm-regular"
-                  as="span"
-                  style={{ color: "var(--brandPrimary700)" }}
-                  truncate
-                >
-                  {t.note}
-                </Typography>
-              )}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={() => ask("glovebox")}
-            className="group relative col-span-2 mt-[10px] flex min-h-[76px] items-center gap-12 rounded-3xl border pr-16 pl-[108px] text-left transition-transform active:scale-[0.98]"
-            style={{
-              backgroundColor: "var(--brandPrimary100)",
-              borderColor: "var(--brandPrimary200)",
-            }}
-          >
-            <img
-              src={asset("/icons/glovebox.webp")}
-              alt=""
-              loading="lazy"
-              className="pointer-events-none absolute -top-[22px] left-12 size-[88px] object-contain"
-            />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <Typography
-                textStyle="label-md-semibold"
-                as="span"
-                style={{ color: "var(--brandPrimary850)" }}
-              >
-                Car documents
-              </Typography>
-              <Typography
-                textStyle="helper-sm-regular"
-                as="span"
-                style={{ color: "var(--brandPrimary700)" }}
-                truncate
-              >
-                {glance}
-              </Typography>
-            </span>
-            <Typography
-              textStyle="body-lg-regular"
-              color="secondary"
-              as="span"
-              aria-hidden="true"
-            >
-              ›
-            </Typography>
-          </button>
+        <div className="min-h-0 flex-1 overflow-y-auto pt-8 pb-8">
+          <ServiceGrid items={GRID_ITEMS} onPick={(i) => ask(i.intent)} />
         </div>
         <button
           type="button"
           onClick={() => ask("allservices")}
-          className="mt-8 flex min-h-48 w-full items-center justify-center gap-4 rounded-full active:opacity-70"
+          className="mt-4 flex min-h-48 w-full items-center justify-center gap-4 rounded-full active:opacity-70"
         >
           <Typography textStyle="label-md-semibold" as="span">
             View all services

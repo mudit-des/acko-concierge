@@ -5,7 +5,7 @@ import type { IntentId } from "./chat";
 
 /**
  * Placeholder account data for the Home tab. Nothing here is real: the booking, the plate and the
- * glove box statuses stand in for what the backend will return.
+ * car documents statuses stand in for what the backend will return.
  */
 
 export const ACTIVE_BOOKING = {

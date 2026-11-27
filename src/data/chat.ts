@@ -57,7 +57,7 @@ export const ASK_TEXT: Record<IntentId, string> = {
   service: "I need to book a service",
   emergency: "I need help right now",
   roadside: "I need roadside assistance",
-  glovebox: "Show me my glove box",
+  glovebox: "Show me my car documents",
   cars: "I need help with a car",
   allservices: "Show me all services",
   human: "I'd like to talk to a person",
@@ -152,8 +152,6 @@ export const SERVICES: ServiceRow[] = [
     image: asset("/icons/glovebox.webp"),
   },
 ];
-
-export const NOTE = "AI-assisted. A person can step in any time.";
 
 export const START_CHIPS: Chip[] = [
   { label: "Buy a car", intent: "buy" },
@@ -264,7 +262,7 @@ export const INTENTS: Record<IntentId, Intent> = {
   },
   glovebox: {
     keywords: ["glove"],
-    answer: `Here's your glove box. ${GLOVE_BOX.map((g) => `${g.label}: ${g.value.toLowerCase()}`).join(". ")}.`,
+    answer: `Here are your car documents. ${GLOVE_BOX.map((g) => `${g.label}: ${g.value.toLowerCase()}`).join(". ")}.`,
     chips: [
       { label: "Check challans", intent: "challans" },
       { label: "Recharge FASTag", intent: "fastag" },

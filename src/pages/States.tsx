@@ -156,7 +156,7 @@ export default function States() {
             row={{
               path: "/home",
               title: "Home tab",
-              summary: "Booking in progress, glove box, and what we do.",
+              summary: "Booking in progress, car documents, and what we do.",
             }}
           />
           <Item
