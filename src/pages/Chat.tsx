@@ -243,7 +243,7 @@ export default function Chat({
   };
 
   const pill =
-    "inline-flex min-h-32 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
+    "relative inline-flex min-h-32 items-center gap-6 rounded-full border text-left transition-transform active:scale-[0.97]";
 
   const renderBody = (m: Msg) => {
     if (m.kind === "grid") {
@@ -263,21 +263,21 @@ export default function Chat({
     if (m.kind === "quick")
       return (
         <div className="flex flex-col gap-8 pt-8">
-          <div className="flex flex-wrap gap-8">
+          <div className="flex flex-wrap gap-x-8 gap-y-[18px] pt-[14px]">
             {(browse ? QUICK_ACTIONS : [...QUICK_ACTIONS, VIEW_ALL_ACTION]).map(
               (a) => (
                 <button
                   key={a.label}
                   type="button"
                   onClick={() => say(ASK_TEXT[a.intent], a.intent)}
-                  className={pill}
+                  className={`${pill} pr-14 ${pillImage(a.intent) ? "pl-[46px]" : "pl-12"}`}
                   style={pillStyle(a)}
                 >
                   {pillImage(a.intent) ? (
                     <img
                       src={pillImage(a.intent)}
                       alt=""
-                      className="pointer-events-none size-[22px] object-contain"
+                      className="pointer-events-none absolute -top-[14px] left-[2px] size-[44px] object-contain"
                     />
                   ) : (
                     PILL_ICON[a.intent] && (
@@ -466,7 +466,7 @@ export default function Chat({
                 key={c.label}
                 type="button"
                 onClick={() => pick(c)}
-                className={pill}
+                className={`${pill} px-14`}
                 style={pillStyle(c)}
               >
                 <Typography
