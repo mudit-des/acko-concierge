@@ -1,40 +1,28 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Badge } from "@acko/badge";
 import { Button } from "@acko/button";
-import {
-  ArrowDown,
-  ChevronDown,
-  ChevronUp,
-  CustomerService,
-  Tick,
-} from "@acko/icons";
+import { ArrowDown, ChevronDown, ChevronUp, Tick } from "@acko/icons";
 import { Typography } from "@acko/typography";
-import { AlertIcon } from "../components/AlertIcon";
 import { Bubble } from "../components/Bubble";
-import { CarCard } from "../components/CarCard";
+import { CarDetails } from "../components/CarDetails";
 import { ChatHeader } from "../components/ChatHeader";
 import { HelpButton } from "../components/HelpButton";
-import { SearchingCard } from "../components/SearchingCard";
+import { PayOptionCard } from "../components/PayOptionCard";
 import { StepsTimeline } from "../components/StepsTimeline";
 import { VerifyCard } from "../components/VerifyCard";
 import {
   BOOKING_AMOUNT,
-  OTP_BODY,
-  OTP_TITLE,
   inr,
   CAR,
-  DEALER_CLOSING,
-  DEALER_SEARCH_LINES,
   DELIVERY_DATE,
-  HEADS_UP_BODY,
-  HEADS_UP_TITLE,
   PAPERWORK_DEADLINE,
   START_PATH,
   stageTarget,
   STEPS,
   VERIFIED_LINE,
   VERIFY_LINES,
-  type GateOption,
+  type PayOption,
+  type PayValue,
 } from "../data/booking";
 import { navigate } from "../router";
 
@@ -59,11 +47,14 @@ export default function BuyCar({
   const current = STEPS[step];
   const rawChoice = new URLSearchParams(search).get("choice");
   const choiceParam =
-    rawChoice === "us" || rawChoice === "bank" ? rawChoice : null;
+    rawChoice === "us" || rawChoice === "bank" || rawChoice === "full"
+      ? (rawChoice as PayValue)
+      : null;
 
   const [verifyDone, setVerifyDone] = useState(step !== 1);
   const [talking, setTalking] = useState(false);
   const [stepsOpen, setStepsOpen] = useState(false);
+  const [pay, setPay] = useState<PayValue | null>(null);
   const groupRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [awayFromLatest, setAwayFromLatest] = useState(false);
 
@@ -100,6 +91,10 @@ export default function BuyCar({
   const delivered = step === LAST;
   const hasGate = Boolean(current.gate);
   const gated = hasGate && !choiceParam;
+  const selectedPay = current.gate ? (pay ?? current.gate.preselected) : null;
+  const selectedOption = current.gate?.options.find(
+    (o) => o.value === selectedPay,
+  );
   // While documents are being checked the current stage is still paperwork.
   const stageNow = step === 1 && !verifyDone ? 0 : current.stage;
   const nextStep = STEPS[step + 1];
@@ -114,6 +109,16 @@ export default function BuyCar({
       : current.status;
   const busy =
     verifying || (hasGate && choiceParam ? false : current.statusBusy);
+
+  // Once the documents check out, Otto carries straight on to the dealer search: no "What's next?" tap.
+  useEffect(() => {
+    if (step !== 1 || !verifyDone) return;
+    const t = window.setTimeout(
+      () => navigate(STEPS[2].path, { replace: true }),
+      reduce ? 600 : 1400,
+    );
+    return () => window.clearTimeout(t);
+  }, [step, verifyDone, reduce]);
 
   // The mascot speaks for a moment when a page opens.
   useEffect(() => {
@@ -243,11 +248,9 @@ export default function BuyCar({
                   ? choiceParam
                   : (choiceParam ?? "us")
                 : null;
-              const opt: GateOption | undefined =
+              const opt: PayOption | undefined =
                 picked && s.gate
-                  ? picked === "bank"
-                    ? s.gate.secondary
-                    : s.gate.primary
+                  ? s.gate.options.find((o) => o.value === picked)
                   : undefined;
               return (
                 <div
@@ -270,6 +273,22 @@ export default function BuyCar({
                       {m}
                     </Bubble>
                   ))}
+                  {isCurrent && gated && s.gate && (
+                    <div
+                      role="radiogroup"
+                      aria-label="How to pay"
+                      className="flex flex-col gap-8"
+                    >
+                      {s.gate.options.map((o) => (
+                        <PayOptionCard
+                          key={o.value}
+                          option={o}
+                          selected={selectedPay === o.value}
+                          onSelect={() => setPay(o.value)}
+                        />
+                      ))}
+                    </div>
+                  )}
                   {s.card === "verify" && (
                     <VerifyCard
                       lines={VERIFY_LINES}
@@ -278,52 +297,7 @@ export default function BuyCar({
                       onDone={() => isCurrent && setVerifyDone(true)}
                     />
                   )}
-                  {s.card === "searching" && (
-                    <>
-                      <SearchingCard
-                        lines={DEALER_SEARCH_LINES}
-                        closing={DEALER_CLOSING}
-                      />
-                      <div className="flex w-full items-start gap-8 rounded-3xl rounded-bl-md border border-border-default-soft bg-surface-card-default px-16 py-12">
-                        <span className="mt-2">
-                          <AlertIcon />
-                        </span>
-                        <div className="flex flex-col gap-4">
-                          <Typography textStyle="body-md-semibold">
-                            {HEADS_UP_TITLE}
-                          </Typography>
-                          <Typography
-                            textStyle="body-md-regular"
-                            color="secondary"
-                          >
-                            {HEADS_UP_BODY}
-                          </Typography>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  {s.card === "otp" && (
-                    <>
-                      <div className="flex w-full items-start gap-12 rounded-3xl border border-border-default-soft bg-surface-card-default px-16 py-12">
-                        <span className="grid size-40 shrink-0 place-items-center rounded-full bg-brand-surface-subtle [&_svg]:size-20">
-                          <CustomerService aria-hidden="true" />
-                        </span>
-                        <div className="flex flex-col gap-4">
-                          <Typography textStyle="body-md-semibold">
-                            {OTP_TITLE}
-                          </Typography>
-                          <Typography
-                            textStyle="body-md-regular"
-                            color="secondary"
-                          >
-                            {OTP_BODY}
-                          </Typography>
-                        </div>
-                      </div>
-                      <CarCard />
-                    </>
-                  )}
-                  {s.card === "assigned" && <CarCard details />}
+                  {s.card === "assigned" && <CarDetails />}
                   {opt && (
                     <>
                       <Bubble from="customer" animate={isCurrent}>
@@ -367,34 +341,16 @@ export default function BuyCar({
                 </Button>
               </div>
             )}
-            {gated && current.gate ? (
-              <>
-                <Button
-                  size="md"
-                  fullWidth
-                  onClick={() =>
-                    navigate(
-                      `${current.path}?choice=${current.gate!.primary.value}`,
-                    )
-                  }
-                >
-                  {current.gate.primary.label}
-                </Button>
-                {current.gate.secondary && (
-                  <Button
-                    size="md"
-                    fullWidth
-                    variant="secondary"
-                    onClick={() =>
-                      navigate(
-                        `${current.path}?choice=${current.gate!.secondary!.value}`,
-                      )
-                    }
-                  >
-                    {current.gate.secondary.label}
-                  </Button>
-                )}
-              </>
+            {gated && selectedOption ? (
+              <Button
+                size="md"
+                fullWidth
+                onClick={() =>
+                  navigate(`${current.path}?choice=${selectedOption.value}`)
+                }
+              >
+                {selectedOption.confirm}
+              </Button>
             ) : verifying ? (
               <Typography
                 textStyle="body-md-regular"
@@ -404,7 +360,7 @@ export default function BuyCar({
               >
                 I'm checking your documents. This takes a few seconds.
               </Typography>
-            ) : current.action ? (
+            ) : step === 1 ? null : current.action ? (
               <Button
                 size="md"
                 fullWidth

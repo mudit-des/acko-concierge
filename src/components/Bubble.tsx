@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Typography } from "@acko/typography";
 
 /**
- * One chat message. The customer has a grey bubble on the right; Otto has a pale sage bubble on the left.
+ * One chat message. The customer has a grey bubble on the right; Otto has a pale sage bubble that runs the full width between the page margins.
  * Otto is already shown in the top bar of every screen, so his messages carry no avatar of their own.
  * Composed from divs and Typography: the packages have no chat component.
  */
@@ -32,7 +32,7 @@ export function Bubble({
   }
   return (
     <div
-      className={`${enter} max-w-[92%] self-start rounded-3xl px-16 py-12`}
+      className={`${enter} w-full self-stretch rounded-3xl px-16 py-12`}
       style={{ backgroundColor: SAGE }}
     >
       <Typography textStyle="body-lg-regular">{children}</Typography>

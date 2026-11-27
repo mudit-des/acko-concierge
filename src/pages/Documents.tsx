@@ -37,15 +37,6 @@ export default function Documents() {
   const ready = addedCount === DOCUMENT_ROWS.length;
   const adding = DOCUMENT_ROWS.some((r) => rows[r.id].status === "adding");
 
-  // Otto's reply to each document lands below the card, so follow it down.
-  useEffect(() => {
-    if (addedCount === 0) return;
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: reduce ? "auto" : "smooth",
-    });
-  }, [addedCount, reduce]);
-
   useEffect(() => {
     const all = timers.current;
     return () => all.forEach(window.clearTimeout);
@@ -192,22 +183,6 @@ export default function Documents() {
               </Typography>
             </div>
           </Card>
-
-          {/* Otto answers as each document arrives */}
-          <div className="flex flex-col gap-4" aria-live="polite">
-            {DOCUMENT_ROWS.filter((r) => rows[r.id].status === "added").map(
-              (r) => (
-                <Bubble key={r.id} from="concierge" animate>
-                  Got your {r.title}.
-                </Bubble>
-              ),
-            )}
-            {ready && (
-              <Bubble from="concierge" animate>
-                That's both. Submit your KYC whenever you're ready.
-              </Bubble>
-            )}
-          </div>
         </section>
       </main>
 
@@ -223,16 +198,6 @@ export default function Documents() {
         <div className="pointer-events-auto mx-auto flex w-full max-w-480 items-end gap-8 px-16 pb-[max(16px,env(safe-area-inset-bottom))]">
           <HelpButton />
           <div className="flex min-w-0 flex-1 flex-col gap-8">
-            <Typography
-              textStyle="body-md-regular"
-              color="secondary"
-              align="center"
-              aria-live="polite"
-            >
-              {ready
-                ? "Both added."
-                : `${addedCount} of ${DOCUMENT_ROWS.length} added`}
-            </Typography>
             <Button size="md" fullWidth disabled={!ready} onClick={submit}>
               Submit my KYC
             </Button>

@@ -43,6 +43,11 @@ const EXTRA: Row[] = [
     summary: "The finance page with the customer's reply shown.",
   },
   {
+    path: "/buy-car/finance?choice=full",
+    title: "Choose how to pay: pay in full",
+    summary: "The finance page with the pay-in-full reply shown.",
+  },
+  {
     path: "/buy-car/finance?choice=bank",
     title: "Choose how to pay: own bank",
     summary: "The finance page with the own-bank reply shown.",

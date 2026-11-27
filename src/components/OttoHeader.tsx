@@ -42,18 +42,22 @@ export function OttoHeader({
           </span>
           <span className="absolute right-0 bottom-0 size-10 rounded-full border-2 border-surface-page-primary bg-surface-status-success" />
         </span>
-        <Typography textStyle="label-lg-semibold" as="h1">
-          {CONCIERGE_NAME}
-        </Typography>
-        <Typography textStyle="body-md-regular" color="secondary" as="span">
-          by
-        </Typography>
-        <img
-          src={asset("/brand/acko-drive-wide-green.svg")}
-          alt="ACKO Drive"
-          height={16}
-          className="h-16 w-auto"
-        />
+        <div className="flex min-w-0 flex-col">
+          <div className="flex items-center gap-8">
+            <Typography textStyle="label-lg-semibold" as="h1">
+              {CONCIERGE_NAME}
+            </Typography>
+            <Typography textStyle="body-md-regular" color="secondary" as="span">
+              by
+            </Typography>
+            <img
+              src={asset("/brand/acko-drive-wide-green.svg")}
+              alt="ACKO Drive"
+              height={16}
+              className="h-16 w-auto"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

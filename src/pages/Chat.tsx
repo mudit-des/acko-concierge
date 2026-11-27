@@ -44,7 +44,7 @@ import { navigate, useLocation } from "../router";
  * The thread lives at module level, so leaving for the tracker and coming back keeps it.
  */
 
-type Kind = "text" | "quick" | "services" | "grid";
+type Kind = "text" | "quick" | "services" | "grid" | "pills";
 interface Msg {
   id: number;
   from: "bot" | "user";
@@ -63,9 +63,16 @@ const INTRO: Omit<Msg, "id">[] = [
   { from: "bot", kind: "quick" },
 ];
 /** What a first-time visitor sees: Otto's greeting (it varies with the customer's stage), then every action as a grid. */
-const introFor = (stage: CustomerStage | null): Omit<Msg, "id">[] => [
-  { from: "bot", kind: "text", text: greetingFor(stage) },
-  { from: "bot", kind: "grid" },
+const introFor = (
+  stage: CustomerStage | null,
+  pills: boolean,
+): Omit<Msg, "id">[] => [
+  ...greetingFor(stage).map((text) => ({
+    from: "bot" as const,
+    kind: "text" as const,
+    text,
+  })),
+  { from: "bot", kind: pills ? "pills" : "grid" },
 ];
 /** One thread per address, so the first-time and returning screens never mix. */
 const STORES: Record<string, { thread: Msg[]; introStep: number }> = {};
@@ -142,13 +149,19 @@ export default function Chat({
 }) {
   const { search } = useLocation();
   const stage = getStage(search);
+  /** /chat-new?view=pills shows the returning home's pills in place of the icon grid, to compare them. */
+  const pillsView = new URLSearchParams(search).get("view") === "pills";
   const store = useMemo(
-    () => (STORES[`${path}|${stage ?? ""}`] ??= { thread: [], introStep: 0 }),
-    [path, stage],
+    () =>
+      (STORES[`${path}|${stage ?? ""}|${pillsView}`] ??= {
+        thread: [],
+        introStep: 0,
+      }),
+    [path, stage, pillsView],
   );
   const intro = useMemo(
-    () => (first ? introFor(stage) : INTRO),
-    [first, stage],
+    () => (first ? introFor(stage, pillsView) : INTRO),
+    [first, stage, pillsView],
   );
   const [messages, setMessages] = useState<Msg[]>(store.thread);
   const [typing, setTyping] = useState(false);
@@ -245,7 +258,105 @@ export default function Chat({
   const pill =
     "relative inline-flex min-h-32 items-center gap-6 rounded-full border text-left transition-transform active:scale-[0.97]";
 
+  const renderPills = (
+    actions: {
+      label: string;
+      intent: IntentId;
+      urgent?: boolean;
+      image?: string;
+    }[],
+  ) => (
+    <div className="flex flex-wrap gap-x-8 gap-y-[18px] pt-[14px]">
+      {actions.map((a) => (
+        <button
+          key={a.label}
+          type="button"
+          onClick={() => say(ASK_TEXT[a.intent], a.intent)}
+          className={`${pill} pr-14 ${(a.image ?? pillImage(a.intent)) ? "pl-[46px]" : "pl-12"}`}
+          style={pillStyle(a)}
+        >
+          {(a.image ?? pillImage(a.intent)) ? (
+            <img
+              src={a.image ?? pillImage(a.intent)}
+              alt=""
+              className="pointer-events-none absolute -top-[14px] left-[2px] size-[44px] object-contain"
+            />
+          ) : (
+            PILL_ICON[a.intent] && (
+              <Icon icon={PILL_ICON[a.intent]!} size={16} />
+            )
+          )}
+          <Typography
+            textStyle="label-md-medium"
+            as="span"
+            style={{ color: "inherit" }}
+          >
+            {a.label}
+          </Typography>
+        </button>
+      ))}
+    </div>
+  );
+
   const renderBody = (m: Msg) => {
+    if (m.kind === "pills") {
+      const byTitle = (t: string) => {
+        const r = SERVICES.find((x) => x.title === t)!;
+        // Shorter on the pill, so Service and Roadside share a row.
+        return {
+          label: r.title === "Roadside assistance" ? "Roadside help" : r.title,
+          intent: r.intent,
+          image: r.image,
+        };
+      };
+      const groups: {
+        title?: string;
+        actions: Parameters<typeof renderPills>[0];
+      }[] = [
+        {
+          actions: [
+            {
+              label: "Emergency help",
+              intent: "emergency",
+              urgent: true,
+              image: GRID_ITEMS[0].image,
+            },
+          ],
+        },
+        {
+          title: "Cars",
+          actions: ["Buy a car", "Sell your car", "Exchange your car"].map(
+            byTitle,
+          ),
+        },
+        {
+          title: "Insurance",
+          actions: ["Insure your car", "Track a claim"].map(byTitle),
+        },
+        {
+          title: "Care",
+          actions: [
+            "Service & repairs",
+            "Roadside assistance",
+            "Car documents",
+          ].map(byTitle),
+        },
+      ];
+      return (
+        <div className="flex flex-col">
+          {groups.map((g, i) => (
+            <div key={i} className={`flex flex-col ${g.title ? "mt-24" : ""}`}>
+              {g.title && (
+                <Typography textStyle="label-sm-semibold" color="secondary">
+                  {g.title}
+                </Typography>
+              )}
+              {renderPills(g.actions)}
+            </div>
+          ))}
+        </div>
+      );
+    }
     if (m.kind === "grid") {
       return (
         <div className="flex flex-col gap-20 pt-12">
@@ -263,38 +374,9 @@ export default function Chat({
     if (m.kind === "quick")
       return (
         <div className="flex flex-col gap-8 pt-8">
-          <div className="flex flex-wrap gap-x-8 gap-y-[18px] pt-[14px]">
-            {(browse ? QUICK_ACTIONS : [...QUICK_ACTIONS, VIEW_ALL_ACTION]).map(
-              (a) => (
-                <button
-                  key={a.label}
-                  type="button"
-                  onClick={() => say(ASK_TEXT[a.intent], a.intent)}
-                  className={`${pill} pr-14 ${pillImage(a.intent) ? "pl-[46px]" : "pl-12"}`}
-                  style={pillStyle(a)}
-                >
-                  {pillImage(a.intent) ? (
-                    <img
-                      src={pillImage(a.intent)}
-                      alt=""
-                      className="pointer-events-none absolute -top-[14px] left-[2px] size-[44px] object-contain"
-                    />
-                  ) : (
-                    PILL_ICON[a.intent] && (
-                      <Icon icon={PILL_ICON[a.intent]!} size={16} />
-                    )
-                  )}
-                  <Typography
-                    textStyle="label-md-medium"
-                    as="span"
-                    style={{ color: "inherit" }}
-                  >
-                    {a.label}
-                  </Typography>
-                </button>
-              ),
-            )}
-          </div>
+          {renderPills(
+            browse ? QUICK_ACTIONS : [...QUICK_ACTIONS, VIEW_ALL_ACTION],
+          )}
           <section
             aria-labelledby="ongoing-title"
             className="flex flex-col gap-16 pt-8"

@@ -115,20 +115,31 @@ const LABELS: Partial<Record<CustomerStage, Record<string, string>>> = {
 };
 
 /** Otto's opening lines, one set per stage. The first entry (no stage) is the default introduction. */
-const GREETINGS: Record<CustomerStage | "default", string> = {
-  default:
-    "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to. Here's how I can help you, or just ask away in chat.",
-  "new-owner":
-    "Congratulations on the new car! Let's get it sorted. Insurance, registration and your car documents are the best places to start, or just ask away in chat.",
-  owner:
-    "Welcome back. Let's keep your car in good shape. I can book a service, sort a repair or renew your insurance, or just ask away in chat.",
-  "active-claim":
-    "I'm keeping an eye on your claim. Track it here for the latest, or ask me anything in chat.",
-  emergency:
-    "I'm here. Are you and everyone with you safe? Tap Emergency help and I'll get someone to you straight away.",
+const GREETINGS: Record<CustomerStage | "default", string[]> = {
+  default: [
+    "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to.",
+    "Here's how I can help you, or just ask away in chat.",
+  ],
+  "new-owner": [
+    "Congratulations on the new car! Let's get it sorted.",
+    "Insurance, registration and your car documents are the best places to start, or just ask away in chat.",
+  ],
+  owner: [
+    "Welcome back. Let's keep your car in good shape.",
+    "I can book a service, sort a repair or renew your insurance, or just ask away in chat.",
+  ],
+  "active-claim": [
+    "I'm keeping an eye on your claim.",
+    "Track it here for the latest, or ask me anything in chat.",
+  ],
+  emergency: [
+    "I'm here. Are you and everyone with you safe?",
+    "Tap Emergency help and I'll get someone to you straight away.",
+  ],
 };
 
-export function greetingFor(stage: CustomerStage | null): string {
+/** Otto's opening, as a short run of messages (one idea each). */
+export function greetingFor(stage: CustomerStage | null): string[] {
   return GREETINGS[stage ?? "default"];
 }
 
