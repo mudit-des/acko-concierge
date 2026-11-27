@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Badge } from "@acko/badge";
 import { Button } from "@acko/button";
-import { ArrowDown, CustomerService, Tick } from "@acko/icons";
+import {
+  ArrowDown,
+  ChevronDown,
+  ChevronUp,
+  CustomerService,
+  Tick,
+} from "@acko/icons";
 import { Typography } from "@acko/typography";
 import { AlertIcon } from "../components/AlertIcon";
 import { Bubble } from "../components/Bubble";
@@ -57,6 +63,7 @@ export default function BuyCar({
 
   const [verifyDone, setVerifyDone] = useState(step !== 1);
   const [talking, setTalking] = useState(false);
+  const [stepsOpen, setStepsOpen] = useState(false);
   const groupRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [awayFromLatest, setAwayFromLatest] = useState(false);
 
@@ -156,93 +163,68 @@ export default function BuyCar({
           }
         />
 
-        {/* Booked screen: the full car card, the deadline and what happens next */}
+        {/* Booked screen: Otto says it once, then one compact car card. The next steps open from inside it. */}
         {step === 0 && (
-          <div className="flex flex-col gap-8 px-16 pt-24 pb-32">
-            <div className="reveal-up w-full rounded-5xl border border-border-default-soft bg-surface-card-default p-12">
+          <div className="flex flex-col gap-16 px-16 pt-16 pb-32">
+            <div className="flex flex-col gap-4">
+              <Bubble from="concierge" animate>
+                Congratulations, your {CAR.name} {CAR.model} is booked! I've
+                received your {inr(BOOKING_AMOUNT)}.
+              </Bubble>
+              <Bubble from="concierge" animate>
+                Next I need you to do your KYC by {PAPERWORK_DEADLINE}. Keep
+                your PAN and Aadhaar handy and finish it here.
+              </Bubble>
+            </div>
+
+            <div
+              className="reveal-up w-full rounded-5xl border border-border-default-soft bg-surface-card-default p-12"
+              style={delay(200)}
+            >
               <img
                 src={CAR.image}
                 alt={`${CAR.name}, ${CAR.model}`}
                 width={CAR.imageRatio.width}
                 height={CAR.imageRatio.height}
-                className="aspect-3/2 w-full rounded-2xl object-cover"
+                className="aspect-[2/1] w-full rounded-2xl object-cover"
+                style={{ objectPosition: "50% 58%" }}
               />
-              <div className="flex flex-col gap-16 p-8 pt-16">
-                <div className="flex items-center justify-between gap-12">
-                  <div className="flex min-w-0 flex-col">
-                    <Typography textStyle="label-lg-semibold">
-                      {CAR.name}
-                    </Typography>
-                    <Typography textStyle="helper-sm-regular" color="secondary">
-                      {CAR.model}
-                    </Typography>
-                  </div>
-                  <Badge color="green" size="md" icon={<Tick />}>
-                    Booked
-                  </Badge>
-                </div>
-                <Typography
-                  textStyle="heading-lg"
-                  as="h1"
-                  className="text-balance"
-                >
-                  Congratulations, your {CAR.name} is booked!
-                </Typography>
-                <Typography textStyle="body-md-regular" color="secondary">
-                  We have received the payment of {inr(BOOKING_AMOUNT)}. Please
-                  wait while we assign a dealer to fulfil your car's make and
-                  model.
-                </Typography>
-                <div className="flex items-center justify-between gap-12 border-t border-border-default-soft pt-16">
-                  <Typography textStyle="body-md-regular" color="secondary">
-                    Expected delivery
+              <div className="flex items-center justify-between gap-12 px-4 pt-12 pb-4">
+                <div className="flex min-w-0 flex-col">
+                  <Typography textStyle="label-lg-semibold">
+                    {CAR.name}
                   </Typography>
-                  <span className="inline-flex items-center gap-8">
-                    <span
-                      className="size-8 rounded-full bg-surface-status-warning"
-                      aria-hidden="true"
-                    />
-                    <Typography textStyle="body-md-medium">
-                      Arrives {DELIVERY_DATE}
-                    </Typography>
-                  </span>
+                  <Typography textStyle="helper-sm-regular" color="secondary">
+                    {CAR.model} · Arrives {DELIVERY_DATE}
+                  </Typography>
                 </div>
+                <Badge color="green" size="md" icon={<Tick />}>
+                  Booked
+                </Badge>
               </div>
-            </div>
-
-            <div
-              className="reveal-up flex w-full items-start gap-8 rounded-3xl rounded-bl-md border border-border-default-soft bg-surface-card-default px-16 py-12"
-              style={delay(200)}
-            >
-              <span className="mt-2">
-                <AlertIcon />
-              </span>
-              <Typography textStyle="body-md-regular" color="secondary">
-                Finish your paperwork by {PAPERWORK_DEADLINE} to keep your
-                booking active.
-              </Typography>
-            </div>
-
-            <section
-              className="reveal-up flex w-full flex-col gap-24 rounded-5xl border border-border-default-soft bg-surface-card-default p-16"
-              style={delay(320)}
-              aria-labelledby="steps-title"
-            >
-              <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => setStepsOpen((o) => !o)}
+                aria-expanded={stepsOpen}
+                aria-controls="booked-steps"
+                className="mt-12 flex min-h-44 w-full items-center justify-between gap-8 border-t border-border-default-soft px-4 pt-4 text-left"
+              >
                 <Typography textStyle="label-md-semibold" color="brand">
-                  Next steps
+                  {stepsOpen ? "Hide the next steps" : "See the next steps"}
                 </Typography>
-                <Typography
-                  textStyle="heading-md"
-                  as="h2"
-                  id="steps-title"
-                  className="text-balance"
+                <span
+                  className="text-text-secondary [&_svg]:size-20"
+                  aria-hidden="true"
                 >
-                  Here's what happens after this
-                </Typography>
-              </div>
-              <StepsTimeline stage={stageNow} />
-            </section>
+                  {stepsOpen ? <ChevronUp /> : <ChevronDown />}
+                </span>
+              </button>
+              {stepsOpen && (
+                <div id="booked-steps" className="reveal-up px-4 pt-12 pb-8">
+                  <StepsTimeline stage={stageNow} />
+                </div>
+              )}
+            </div>
           </div>
         )}
 

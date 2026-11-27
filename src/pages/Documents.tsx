@@ -3,11 +3,11 @@ import { Button } from "@acko/button";
 import { Card } from "@acko/card";
 import { Lock, Tick } from "@acko/icons";
 import { Typography } from "@acko/typography";
-import { AlertIcon } from "../components/AlertIcon";
+import { Bubble } from "../components/Bubble";
 import { ChatHeader } from "../components/ChatHeader";
 import { HelpButton } from "../components/HelpButton";
 import { Icon } from "../components/Icon";
-import { CAR, DOCUMENT_ROWS, QUICK_CHECKS, STEPS } from "../data/booking";
+import { CAR, DOCUMENT_ROWS, STEPS } from "../data/booking";
 import { navigate } from "../router";
 
 type RowState = { status: "empty" | "adding" | "added"; name?: string };
@@ -36,6 +36,15 @@ export default function Documents() {
   ).length;
   const ready = addedCount === DOCUMENT_ROWS.length;
   const adding = DOCUMENT_ROWS.some((r) => rows[r.id].status === "adding");
+
+  // Otto's reply to each document lands below the card, so follow it down.
+  useEffect(() => {
+    if (addedCount === 0) return;
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: reduce ? "auto" : "smooth",
+    });
+  }, [addedCount, reduce]);
 
   useEffect(() => {
     const all = timers.current;
@@ -85,55 +94,21 @@ export default function Documents() {
           }
         />
 
-        {/* Concierge asks for the documents */}
-        <div className="px-16 pt-24">
-          <div className="flex min-w-0 flex-col gap-8">
-            <div className="reveal-up flex flex-col gap-12 rounded-5xl border border-border-default-soft bg-surface-card-default p-16">
-              <Typography
-                textStyle="heading-lg"
-                as="h1"
-                className="text-balance"
-              >
-                Just two documents: your PAN and Aadhaar.
-              </Typography>
-              <Typography textStyle="body-md-regular" color="secondary">
-                These are what your invoice and registration are issued against.
-                Add them below and I'll take care of the rest.
-              </Typography>
-            </div>
-
-            <div
-              className="reveal-up flex w-full items-start gap-8 rounded-3xl rounded-bl-md border border-border-default-soft bg-surface-card-default px-16 py-12"
-              style={{ animationDelay: "120ms" }}
-            >
-              <span className="mt-2">
-                <AlertIcon />
-              </span>
-              <div className="flex flex-col gap-8">
-                <Typography textStyle="body-md-semibold">
-                  Quick check
-                </Typography>
-                <ul className="flex flex-col gap-8">
-                  {QUICK_CHECKS.map((c) => (
-                    <li key={c} className="flex gap-8">
-                      <span
-                        className="mt-8 size-4 shrink-0 rounded-full bg-text-secondary"
-                        aria-hidden="true"
-                      />
-                      <Typography textStyle="body-md-regular" color="secondary">
-                        {c}
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+        {/* Otto asks for the KYC documents, with the two checks folded into what he says */}
+        <div className="flex flex-col gap-4 px-16 pt-16">
+          <Bubble from="concierge" animate>
+            Let's get your KYC done. I need your Aadhaar and your PAN, and I'll
+            take care of the rest.
+          </Bubble>
+          <Bubble from="concierge" animate>
+            Make sure the name matches on both, and that your Aadhaar address
+            shows Bengaluru, since that's where the car gets registered.
+          </Bubble>
         </div>
 
         {/* Documents */}
         <section
-          className="reveal-up flex flex-col gap-16 px-16 pt-32"
+          className="reveal-up flex flex-col gap-16 px-16 pt-16"
           style={{ animationDelay: "240ms" }}
           aria-label="Your documents"
         >
@@ -207,15 +182,31 @@ export default function Documents() {
                 </div>
               );
             })}
+            <div className="mt-16 flex items-start gap-8 border-t border-border-default-soft pt-16">
+              <span className="mt-2 shrink-0 text-text-secondary">
+                <Icon icon={Lock} size={16} />
+              </span>
+              <Typography textStyle="helper-sm-regular" color="secondary">
+                Encrypted, and used only for this purchase. Nobody else sees
+                them.
+              </Typography>
+            </div>
           </Card>
 
-          <div className="flex items-start gap-8 px-4">
-            <span className="mt-2 shrink-0 text-text-secondary">
-              <Icon icon={Lock} size={16} />
-            </span>
-            <Typography textStyle="body-md-regular" color="secondary">
-              Encrypted, and used only for this purchase. Nobody else sees them.
-            </Typography>
+          {/* Otto answers as each document arrives */}
+          <div className="flex flex-col gap-4" aria-live="polite">
+            {DOCUMENT_ROWS.filter((r) => rows[r.id].status === "added").map(
+              (r) => (
+                <Bubble key={r.id} from="concierge" animate>
+                  Got your {r.title}.
+                </Bubble>
+              ),
+            )}
+            {ready && (
+              <Bubble from="concierge" animate>
+                That's both. Submit your KYC whenever you're ready.
+              </Bubble>
+            )}
           </div>
         </section>
       </main>
@@ -239,11 +230,11 @@ export default function Documents() {
               aria-live="polite"
             >
               {ready
-                ? "Both documents added."
+                ? "Both added."
                 : `${addedCount} of ${DOCUMENT_ROWS.length} added`}
             </Typography>
             <Button size="md" fullWidth disabled={!ready} onClick={submit}>
-              Here are my documents
+              Submit my KYC
             </Button>
           </div>
         </div>

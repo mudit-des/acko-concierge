@@ -507,7 +507,7 @@ export default function Chat({
             return (
               <div
                 key={m.id}
-                className={`flex flex-col gap-8 ${joined ? "-mt-6" : ""}`}
+                className={`flex flex-col gap-8 ${joined ? "-mt-4" : ""}`}
               >
                 {renderBody(m)}
               </div>

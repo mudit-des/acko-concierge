@@ -9,7 +9,7 @@ import type { IntentId } from "./chat";
  */
 
 export const ACTIVE_BOOKING = {
-  status: "Complete your paperwork",
+  status: "Complete your KYC",
   /** The stage in progress, as an index into STAGES (0 = paperwork). */
   stage: 0,
   /** Where the tracker for it lives. */
@@ -29,8 +29,32 @@ export interface GloveItem {
 
 /** Live status of the things a car owner keeps having to check. */
 export const GLOVE_BOX: GloveItem[] = [
-  { label: "Challans", icon: TrafficFines, value: "All clear", tone: "ok", intent: "challans" },
-  { label: "FASTag", icon: Fastag, value: "₹560", tone: "none", intent: "fastag" },
-  { label: "PUC", icon: PollutionCentre, value: "Expiring soon", tone: "warn", intent: "puc" },
-  { label: "Service", icon: CarService, value: "Overdue", tone: "bad", intent: "service" },
+  {
+    label: "Challans",
+    icon: TrafficFines,
+    value: "All clear",
+    tone: "ok",
+    intent: "challans",
+  },
+  {
+    label: "FASTag",
+    icon: Fastag,
+    value: "₹560",
+    tone: "none",
+    intent: "fastag",
+  },
+  {
+    label: "PUC",
+    icon: PollutionCentre,
+    value: "Expiring soon",
+    tone: "warn",
+    intent: "puc",
+  },
+  {
+    label: "Service",
+    icon: CarService,
+    value: "Overdue",
+    tone: "bad",
+    intent: "service",
+  },
 ];
