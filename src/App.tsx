@@ -12,7 +12,7 @@ import { navigate, useLocation } from "./router";
  * Routes
  *   /story                     the opening animation and the stories, full screen (the root address opens it)
  *   /chat                      the chat: the whole app after the stories (/home redirects here)
- *   /chat-new                  the first-time home: Otto introduces itself, then a grid of everything it does
+ *   /chat-new                  the first-time home: Otto introduces itself, then every action as grouped pills (?view=grid for the icon grid)
  *   /chat-1                    the earlier chat with the 2x2 "browse what we do" grid (/chat-2 redirects to /chat)
  *   /buy-car                   redirects to /buy-car/received
  *   /buy-car/received ...      one page per state of the car purchase (see STEPS in data/booking.ts)

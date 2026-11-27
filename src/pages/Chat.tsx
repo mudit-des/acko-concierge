@@ -149,8 +149,8 @@ export default function Chat({
 }) {
   const { search } = useLocation();
   const stage = getStage(search);
-  /** /chat-new?view=pills shows the returning home's pills in place of the icon grid, to compare them. */
-  const pillsView = new URLSearchParams(search).get("view") === "pills";
+  /** The first-time home shows grouped pills. /chat-new?view=grid shows the icon grid instead, to compare. */
+  const pillsView = new URLSearchParams(search).get("view") !== "grid";
   const store = useMemo(
     () =>
       (STORES[`${path}|${stage ?? ""}|${pillsView}`] ??= {

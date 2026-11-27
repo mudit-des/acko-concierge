@@ -77,6 +77,8 @@ export interface QuickAction {
   label: string;
   intent: IntentId;
   urgent?: boolean;
+  /** A 3D icon that pops out of the pill. */
+  image?: string;
 }
 export const QUICK_ACTIONS: QuickAction[] = [
   { label: "Emergency help", intent: "emergency", urgent: true },
@@ -89,6 +91,7 @@ export const QUICK_ACTIONS: QuickAction[] = [
 export const VIEW_ALL_ACTION: QuickAction = {
   label: "View all services",
   intent: "allservices",
+  image: asset("/icons/viewall.webp"),
 };
 
 /** Everything the concierge does. A picture where one exists, otherwise an icon. */
