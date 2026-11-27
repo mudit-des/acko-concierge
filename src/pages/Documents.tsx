@@ -14,8 +14,8 @@ type RowState = { status: "empty" | "adding" | "added"; name?: string };
 type Id = (typeof DOCUMENT_ROWS)[number]["id"];
 
 /**
- * Paperwork step. Files are read in the browser only (name shown, nothing uploaded) so the
- * prototype can show every state. A real build would upload to the verification service.
+ * Paperwork step. Prototype: tapping Upload marks the document as added without choosing a file, so every
+ * state can be shown. A real build would pick and upload to the verification service.
  */
 export default function Documents() {
   const reduce = useRef(
@@ -24,10 +24,6 @@ export default function Documents() {
   const [rows, setRows] = useState<Record<Id, RowState>>({
     aadhaar: { status: "empty" },
     pan: { status: "empty" },
-  });
-  const inputs = useRef<Record<Id, HTMLInputElement | null>>({
-    aadhaar: null,
-    pan: null,
   });
   const timers = useRef<number[]>([]);
 
@@ -42,15 +38,15 @@ export default function Documents() {
     return () => all.forEach(window.clearTimeout);
   }, []);
 
-  const pick = (id: Id, file: File | undefined) => {
-    if (!file) return;
-    setRows((r) => ({ ...r, [id]: { status: "adding", name: file.name } }));
+  // Prototype: tapping Upload stands in for choosing a file. Real file picking comes later.
+  const pick = (id: Id, name: string) => {
+    setRows((r) => ({ ...r, [id]: { status: "adding", name } }));
     timers.current.push(
       window.setTimeout(
         () =>
           setRows((r) => ({
             ...r,
-            [id]: { status: "added", name: file.name },
+            [id]: { status: "added", name },
           })),
         reduce ? 0 : 900,
       ),
@@ -123,20 +119,6 @@ export default function Documents() {
                       {state.status === "empty" ? row.hint : state.name}
                     </Typography>
                   </div>
-                  <input
-                    ref={(el) => {
-                      inputs.current[row.id] = el;
-                    }}
-                    type="file"
-                    accept="image/*,application/pdf"
-                    className="sr-only"
-                    tabIndex={-1}
-                    aria-label={`Choose ${row.title}`}
-                    onChange={(e) => {
-                      pick(row.id, e.target.files?.[0]);
-                      e.target.value = "";
-                    }}
-                  />
                   {state.status === "adding" ? (
                     <span className="grid size-48 place-items-center">
                       <span
@@ -156,7 +138,7 @@ export default function Documents() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => inputs.current[row.id]?.click()}
+                        onClick={() => pick(row.id, `${row.title}.jpg`)}
                       >
                         Replace
                       </Button>
@@ -165,7 +147,7 @@ export default function Documents() {
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => inputs.current[row.id]?.click()}
+                      onClick={() => pick(row.id, `${row.title}.jpg`)}
                     >
                       Upload
                     </Button>
