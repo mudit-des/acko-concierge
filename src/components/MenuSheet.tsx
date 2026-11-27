@@ -27,35 +27,35 @@ const TILES: TileData[] = [
     position: "36% 50%",
   },
   {
-    title: "Sell",
+    title: "Sell your car",
     note: "A verified buyer",
     intent: "sell",
     image: "sell",
     position: "50% 40%",
   },
   {
-    title: "Exchange",
+    title: "Exchange your car",
     note: "Trade in your old car",
     intent: "exchange",
     image: "exchange",
     position: "50% 40%",
   },
   {
-    title: "Insurance",
+    title: "Insure your car",
     note: "Buy, renew, claim",
     intent: "insurance",
     image: "insurance",
   },
   {
-    title: "Service",
+    title: "Service & repairs",
     note: "Free pick up and drop",
     intent: "service",
     image: "service",
   },
   {
-    title: "Roadside help",
+    title: "Roadside assistance",
     note: "Towing, battery, tyre",
-    intent: "emergency",
+    intent: "roadside",
     image: "roadside",
   },
 ];
@@ -166,7 +166,7 @@ export function MenuSheet({
                 as="span"
                 style={{ color: "var(--brandPrimary850)" }}
               >
-                Glove box
+                Car documents
               </Typography>
               <Typography
                 textStyle="helper-sm-regular"

@@ -22,10 +22,8 @@ import { Bubble, TypingBubble } from "../components/Bubble";
 import { Icon, type IconType } from "../components/Icon";
 import { OttoHeader } from "../components/OttoHeader";
 import { MenuSheet } from "../components/MenuSheet";
-import { RollingHint } from "../components/RollingHint";
 import {
   ASK_TEXT,
-  EMERGENCY_ICON,
   INTENTS,
   QUICK_ACTIONS,
   SERVICES,
@@ -34,6 +32,12 @@ import {
   type Chip,
   type IntentId,
 } from "../data/chat";
+import {
+  arrangeGrid,
+  getStage,
+  greetingFor,
+  type CustomerStage,
+} from "../data/context";
 import { ACTIVE_BOOKING } from "../data/home";
 import { CAR } from "../data/booking";
 import { navigate, useLocation } from "../router";
@@ -63,18 +67,13 @@ const INTRO: Omit<Msg, "id">[] = [
   },
   { from: "bot", kind: "quick" },
 ];
-/** What a first-time visitor sees: Otto introduces itself, then every action as a grid. */
-const INTRO_FIRST: Omit<Msg, "id">[] = [
-  {
-    from: "bot",
-    kind: "text",
-    text: "Hey, I'm Otto, your car companion. I take care of the annoying car stuff, so you don't have to.",
-  },
-  {
-    from: "bot",
-    kind: "text",
-    text: "Here's how I can help you, or just ask away in chat.",
-  },
+/** What a first-time visitor sees: Otto's greeting (it varies with the customer's stage), then every action as a grid. */
+const introFor = (stage: CustomerStage | null): Omit<Msg, "id">[] => [
+  ...greetingFor(stage).map((text) => ({
+    from: "bot" as const,
+    kind: "text" as const,
+    text,
+  })),
   { from: "bot", kind: "grid" },
 ];
 /** One thread per address, so the first-time and returning screens never mix. */
@@ -107,19 +106,19 @@ const BENTO = [
     image: asset("/illustrations/tile-buy.webp"),
   },
   {
-    title: "Sell",
+    title: "Sell your car",
     body: "A fair price and a verified buyer.",
     intent: "sell" as IntentId,
     image: asset("/illustrations/tile-sell.webp"),
   },
   {
-    title: "Exchange",
+    title: "Exchange your car",
     body: "Trade in your old car for a new one.",
     intent: "exchange" as IntentId,
     image: asset("/illustrations/tile-exchange.webp"),
   },
   {
-    title: "Car insurance",
+    title: "Insure your car",
     body: "Buy, renew or claim in one place.",
     intent: "insurance" as IntentId,
     image: asset("/illustrations/tile-insure.webp"),
@@ -148,16 +147,19 @@ export default function Chat({
   path?: string;
 }) {
   const { search } = useLocation();
+  const stage = getStage(search);
   const store = useMemo(
-    () => (STORES[path] ??= { thread: [], introStep: 0 }),
-    [path],
+    () => (STORES[`${path}|${stage ?? ""}`] ??= { thread: [], introStep: 0 }),
+    [path, stage],
   );
-  const intro = first ? INTRO_FIRST : INTRO;
+  const intro = useMemo(
+    () => (first ? introFor(stage) : INTRO),
+    [first, stage],
+  );
   const [messages, setMessages] = useState<Msg[]>(store.thread);
   const [typing, setTyping] = useState(false);
-  const [picked, setPicked] = useState<IntentId | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
-  const [focused, setFocused] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -254,74 +256,71 @@ export default function Chat({
     say(text, matchIntent(text));
   };
 
-  const showHint = !draft && !focused;
   const pill =
     "inline-flex min-h-32 items-center gap-6 rounded-full border pr-14 pl-12 text-left transition-transform active:scale-[0.97]";
 
   const renderBody = (m: Msg) => {
     if (m.kind === "grid") {
-      const items = [
-        {
-          title: "Emergency",
-          intent: "emergency" as IntentId,
-          image: EMERGENCY_ICON,
-          urgent: true,
-        },
-        ...SERVICES.map((r) => ({
-          title: r.title,
-          intent: r.intent,
-          image: r.image,
-          urgent: false,
-        })),
-      ];
+      const items = arrangeGrid(stage);
       return (
         <div className="flex flex-col gap-20 pt-12">
-          {/* Icons on pale sage plates, no cards. Emergency gets a soft pink plate and a red label. */}
+          {/* Icons on pale sage plates, no cards. Emergency is pink with a red label and a soft halo. */}
           <div className="grid grid-cols-3 gap-x-8 gap-y-20">
             {items.map((i) => {
-              const selected = picked === i.intent;
+              const urgent = i.id === "emergency";
+              const selected = picked === i.id;
+              const tone = urgent
+                ? "var(--textStatusError)"
+                : "var(--brandPrimary600)";
+              const ring =
+                selected && !urgent
+                  ? `0 0 0 3px var(--surfacePagePrimary), 0 0 0 5px ${tone}`
+                  : "none";
               return (
                 <button
-                  key={i.title}
+                  key={i.id}
                   type="button"
                   aria-pressed={selected}
                   onClick={() => {
-                    setPicked(i.intent);
+                    setPicked(i.id);
                     say(ASK_TEXT[i.intent], i.intent);
                   }}
-                  className="group flex flex-col items-center gap-10 rounded-3xl text-center outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-selection-default"
+                  className="group flex min-h-[44px] flex-col items-center gap-10 rounded-3xl text-center outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-selection-default"
                 >
                   <span
-                    className={`grid size-[84px] place-items-center rounded-full transition-[transform,background-color,box-shadow] duration-200 group-active:scale-95 motion-reduce:transition-none ${
-                      i.urgent
+                    className={`grid size-[84px] place-items-center rounded-full transition-[transform,background-color,box-shadow] duration-200 ease-out group-active:scale-[0.96] motion-reduce:transition-none motion-reduce:group-active:scale-100 ${
+                      urgent
                         ? "[@media(hover:hover)]:group-hover:bg-[color-mix(in_srgb,var(--textStatusError)_16%,white)]"
                         : "[@media(hover:hover)]:group-hover:bg-[var(--brandPrimary150)]"
                     }`}
                     style={{
-                      backgroundColor: i.urgent
-                        ? "color-mix(in srgb, var(--textStatusError) 10%, white)"
+                      backgroundColor: urgent
+                        ? `color-mix(in srgb, var(--textStatusError) ${selected ? 18 : 10}%, white)`
                         : "var(--brandPrimary100)",
-                      boxShadow: selected
-                        ? `0 0 0 3px var(--surfacePagePrimary), 0 0 0 5px ${i.urgent ? "var(--textStatusError)" : "var(--brandPrimary600)"}`
-                        : "none",
+                      boxShadow: ring,
                     }}
                   >
                     <img
                       src={i.image}
                       alt=""
-                      loading="lazy"
-                      className="pointer-events-none size-[60px] object-contain transition-transform duration-200 [@media(hover:hover)]:group-hover:scale-105 motion-reduce:transition-none"
+                      decoding="async"
+                      style={{
+                        width: Math.round(60 * (i.fit ?? 1)),
+                        height: Math.round(60 * (i.fit ?? 1)),
+                      }}
+                      className="pointer-events-none max-w-none object-contain transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                     />
                   </span>
                   <Typography
                     textStyle="label-md-semibold"
                     as="span"
-                    className="min-h-[36px] px-2 leading-[18px] tracking-[-0.005em]"
+                    align="center"
+                    className="px-2 leading-[18px] tracking-[-0.005em] transition-colors duration-200 motion-reduce:transition-none"
                     style={{
-                      color: i.urgent ? "var(--textStatusError)" : undefined,
+                      color: urgent ? "var(--textStatusError)" : undefined,
                     }}
                   >
-                    {i.title}
+                    {i.label}
                   </Typography>
                 </button>
               );
@@ -594,7 +593,7 @@ export default function Chat({
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-label="Show the menu"
-            className="grid size-48 shrink-0 place-items-center rounded-full border border-border-default-medium bg-surface-card-default text-text-primary active:scale-[0.96]"
+            className="grid size-48 shrink-0 place-items-center rounded-full border border-border-default-strong bg-white text-text-primary shadow-s transition-transform active:scale-[0.96] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             <span className="inline-flex size-24" aria-hidden="true">
               <svg
@@ -612,19 +611,14 @@ export default function Chat({
               </svg>
             </span>
           </button>
-          <div className="relative flex min-w-0 flex-1 items-center gap-8 rounded-full border border-border-default-medium bg-surface-card-default py-3 pr-3 pl-20 shadow-s focus-within:border-text-primary">
-            {showHint && (
-              <span className="pointer-events-none absolute inset-y-0 right-60 left-20 flex items-center">
-                <RollingHint />
-              </span>
-            )}
+          <div className="relative flex min-w-0 flex-1 items-center gap-8 rounded-full border border-border-default-strong bg-white py-3 pr-3 pl-20 shadow-m transition-colors duration-200 focus-within:border-[var(--brandPrimary600)] motion-reduce:transition-none">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
+              placeholder="Ask Otto anything..."
               aria-label="Message Otto"
-              className="h-40 min-w-0 flex-1 bg-transparent text-[16px] text-text-primary outline-none"
+              enterKeyHint="send"
+              className="h-40 min-w-0 flex-1 bg-transparent text-[16px] leading-[24px] text-text-primary outline-none placeholder:text-text-secondary"
             />
             <button
               type="submit"

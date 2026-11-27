@@ -27,6 +27,7 @@ export type IntentId =
   | "puc"
   | "service"
   | "emergency"
+  | "roadside"
   | "glovebox"
   | "cars"
   | "allservices"
@@ -55,6 +56,7 @@ export const ASK_TEXT: Record<IntentId, string> = {
   puc: "Check my PUC validity",
   service: "I need to book a service",
   emergency: "I need help right now",
+  roadside: "I need roadside assistance",
   glovebox: "Show me my glove box",
   cars: "I need help with a car",
   allservices: "Show me all services",
@@ -77,10 +79,10 @@ export interface QuickAction {
   urgent?: boolean;
 }
 export const QUICK_ACTIONS: QuickAction[] = [
-  { label: "Emergency", intent: "emergency", urgent: true },
-  { label: "Service or repair", intent: "service" },
+  { label: "Emergency help", intent: "emergency", urgent: true },
+  { label: "Service & repairs", intent: "service" },
   { label: "Raise a claim", intent: "claim" },
-  { label: "Glove box", intent: "glovebox" },
+  { label: "Car documents", intent: "glovebox" },
 ];
 
 /** The pill that opens the full list; shown where the browse grid is not. */
@@ -114,37 +116,37 @@ export const SERVICES: ServiceRow[] = [
     image: asset("/icons/sell.webp"),
   },
   {
-    title: "Exchange",
+    title: "Exchange your car",
     note: "Trade in your old car for a new one",
     intent: "exchange",
     image: asset("/icons/exchange.webp"),
   },
   {
-    title: "Car insurance",
+    title: "Insure your car",
     note: "Buy or renew in under a minute",
     intent: "insurance",
     image: asset("/icons/insurance.webp"),
   },
   {
-    title: "Service and repair",
+    title: "Service & repairs",
     note: "Free pick up and drop",
     intent: "service",
     image: asset("/icons/service.webp"),
   },
   {
-    title: "Roadside help",
+    title: "Roadside assistance",
     note: "Towing, battery and tyre, any time",
-    intent: "emergency",
+    intent: "roadside",
     image: asset("/icons/roadside.webp"),
   },
   {
-    title: "Claims",
+    title: "Track a claim",
     note: "Raise one and we follow it through",
     intent: "claim",
     image: asset("/icons/claims.webp"),
   },
   {
-    title: "Glove box",
+    title: "Car documents",
     note: "Challans, FASTag and PUC in one place",
     intent: "glovebox",
     image: asset("/icons/glovebox.webp"),
@@ -231,21 +233,32 @@ export const INTENTS: Record<IntentId, Intent> = {
     chips: [{ label: "Book a service", intent: "fallback" }, PERSON],
   },
   emergency: {
+    keywords: ["emergency", "stuck", "help now", "accident"],
+    answer:
+      "I'm here. First, is everyone safe? Tell me where you are and what's happened, and I'll get help to you straight away.",
+    chips: [
+      { label: "I need a tow", intent: "roadside" },
+      { label: "Someone is hurt", intent: "human" },
+      PERSON,
+    ],
+  },
+  roadside: {
     keywords: [
-      "emergency",
-      "stuck",
-      "breakdown",
-      "broke down",
       "tow",
       "tyre",
+      "tire",
       "battery",
-      "help now",
+      "jump",
+      "roadside",
+      "breakdown",
+      "broke down",
     ],
     answer:
-      "I'm here. First, is everyone safe? If you need help on the road right now, I can arrange towing, a jump-start or a tyre change straight away.",
+      "I can send a tow truck, a jump-start or a tyre change. Where is the car, and what's happened?",
     chips: [
-      { label: "I need a tow", intent: "human" },
-      { label: "Flat tyre or battery", intent: "human" },
+      { label: "Tow truck", intent: "human" },
+      { label: "Battery jump-start", intent: "human" },
+      { label: "Flat tyre", intent: "human" },
       PERSON,
     ],
   },
